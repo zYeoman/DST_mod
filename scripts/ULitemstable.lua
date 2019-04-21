@@ -2,9 +2,9 @@ local _itemstable = {}
 
 _itemstable.creatures = {
     "minotaur", --守护者    1
-    "deerclops", --雪巨鹿    2
-    "bearger", --比尔熊    3
-    "dragonfly", --龙蜻蜓    4
+    "deerclops", --巨鹿    2
+    "bearger", --熊大    3
+    "dragonfly", --龙蝇    4
     "moose", --鹿角鹅    5
     "klaus", --克劳斯    6
     "toadstool", --毒蟾蜍    7
@@ -17,12 +17,14 @@ _itemstable.creatures = {
     "stalker_forest", --地上影织者 14
     "stalker_atrium", --中庭影织者 15
     "toadstool_dark", --暗黑毒蕈 16
+    "leif", -- 树精 -- 17
+    "leif_sparse",
 
     "glommer", --格罗姆
     "koalefant_summer", --考拉夏
     "koalefant_winter", --考拉冬
     "beefalo", --弗洛牛
-    "little_walrus", --小海象
+    -- "little_walrus", --小海象
     "walrus", --海象爹
     "spiderqueen", --蜘蛛王
     "warg", --座狼王

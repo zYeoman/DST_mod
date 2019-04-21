@@ -1,5 +1,11 @@
 GLOBAL.setmetatable(env,{__index=function(t,k) return GLOBAL.rawget(GLOBAL,k) end})
 local _G = GLOBAL
+local TheNet = _G.TheNet
+local require = _G.require
+local SpawnPrefab = _G.SpawnPrefab
+local PI = _G.PI
+local STRINGS = _G.STRINGS
+
 local BOSS_PERIOD = GetModConfigData("boss_period")
 local BIOLOGY_PERIOD = GetModConfigData("biology_period")
 local ARMOUR_ARMOR = GetModConfigData("armour_armor")
@@ -151,26 +157,6 @@ AddPrefabPostInit("icehound", biology_a)         --冰狗
 
 --回血（BOSS）
 TUNING.BOSS_REGEN = GetModConfigData("boss_regen")
-local function boss_h(inst)
-  if inst.components.health then
-    inst.components.health:StartRegen(TUNING.BOSS_REGEN, 1)
-  end
-end
-AddPrefabPostInit("dragonfly", boss_h)      --龙蝇
-AddPrefabPostInit("bearger", boss_h)        --熊大
-AddPrefabPostInit("deerclops", boss_h)      --巨鹿
-AddPrefabPostInit("moose", boss_h)          --鹿角鹅
-AddPrefabPostInit("mossling", boss_h)       --小鸭子
-AddPrefabPostInit("minotaur", boss_h)       --远古守护者
-AddPrefabPostInit("beequeen", boss_h)       --蜂后
-AddPrefabPostInit("toadstool", boss_h)      --普通蛤蟆
-AddPrefabPostInit("toadstool_dark", boss_h) --毒蛤蟆
-AddPrefabPostInit("spiderqueen", boss_h)    --蜘蛛女皇
-AddPrefabPostInit("leif", boss_h)           --树精
-AddPrefabPostInit("leif_sparse", boss_h)    --稀有树精
-AddPrefabPostInit("warg", boss_h)           --座狼
-AddPrefabPostInit("spat", boss_h)           --钢羊
-AddPrefabPostInit("walrus", boss_h)         --海象
 --回血（生物）
 TUNING.BIOLOGY_REGEN = GetModConfigData("biology_regen")
 local function biology_h(inst)
@@ -683,8 +669,15 @@ local CreaturesOri = itemstable.creatures
 local CharactersOri = itemstable.characters
 local MionrsOri = itemstable.minors
 
-local mis = require("ULmiscellaneous")
-local GetInstName = mis.GetInstName
+local strong = require("ULstrong")
+
+local function GetInstName(inst)
+    return inst and inst:GetDisplayName() or "*无名*"
+end
+
+local function GetAttacker(data)
+    return data and data.attacker and data.attacker:GetDisplayName() or "*无名*"
+end
 
 AddPrefabPostInit("world", function(inst)
   local function gongzi()
@@ -767,25 +760,131 @@ AddPrefabPostInit("ruins_table", function(inst)inst:RemoveComponent("combat")end
 AddPrefabPostInit("ruins_chair", function(inst)inst:RemoveComponent("combat")end)
 AddPrefabPostInit("ruins_vase", function(inst)inst:RemoveComponent("combat")end)
 
+-- BOSS加强
 for k, v in pairs(CreaturesOri) do
   AddPrefabPostInit(v, function(inst)
-    local stronger = _G.get_stronger[v] or 1
-    local getdamage = 0.8*100/(100+stronger)
-    inst:ListenForEvent("death", function(inst)
-      _G.get_stronger[v] = _G.get_stronger[v] and _G.get_stronger[v] + 1 or 1
-    end)
-    if v ~= "antlion" then
-      if inst.components.health == nil then
-        inst:AddComponent("health")
+
+    local function siwanggonggao(inst, data)
+      inst:RemoveEventCallback("attacked", siwanggonggao)
+      local attacker = "【" .. GetAttacker(data) .. "】"
+      local vicitim = "【".. GetInstName(inst) .."】"
+      if v == "glommer" then
+        TheNet:Announce("可恶的" .. attacker .. "杀死了可怜的" .. vicitim)
+        return
       end
-      inst:DoTaskInTime(0.1, function()
-        if inst.book_summon~=true and (v=="bearger" or v=="dragonfly" or v=="deerclops" or v=="minortaur" or v=="moose" or v=="toadstool" or v=="minotaur") then
-          getdamage = 1
+      if v == "klaus" then
+        if inst.kaimiao and inst.kaimiao == 1 then
+          TheNet:Announce(attacker.."解开了"..vicitim.."的锁链")
+          return
         end
-        if inst.components.combat then
-          inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", getdamage)
-        end
+      end
+      TheNet:Announce(attacker .. "给了" .. vicitim .. "最后一击")
+    end
+
+    local function ondeath(inst)
+      if v == "klaus" then
+        inst.kaimiao = inst.kaimiao and 1 or 0
+      end
+      _G.get_stronger[v] = _G.get_stronger[v] and _G.get_stronger[v] + 1 or 1
+      inst:ListenForEvent("attacked", siwanggonggao)
+    end
+    local function onremove(inst)
+      local vicitim = "【".. GetInstName(inst) .."】"
+      TheNet:Announce(vicitim.."消失了")
+    end
+    --此处的 maxhealth 是原始数值
+    --print("default maxhealth ->"..inst.components.health.maxhealth )
+    if inst.components.health and inst.components.health.maxhealth >= 600 then
+        inst:ListenForEvent("onremove", onremove)
+        inst:ListenForEvent("death", ondeath)
+    end
+
+    if k < 17 then
+      inst:DoTaskInTime(0.1, function(inst)
+        local vicitim = "【".. GetInstName(inst) .."】"
+        TheNet:Announce("BOSS "..vicitim.."出现！")
       end)
+    end
+
+    if v == "glommer" then
+      local vicitim = "【".. GetInstName(inst) .."】"
+      TheNet:Announce(vicitim.."出现了，快去领回家！")
+    end
+
+    if strong and strong[v] then
+      strong[v](inst)
+    end
+
+    local stronger = _G.get_stronger[v] or 1
+    local absorb = 0.5*stronger/(100+stronger)
+
+    inst:DoTaskInTime(0.1, function()
+      if inst.book_summon~=true and (v=="bearger" or v=="dragonfly" or v=="deerclops" or v=="minortaur" or v=="moose" or v=="toadstool" or v=="minotaur") then
+        absorb = 0
+      else
+        if inst.components.combat then
+          inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
+        end
+      end
+        if inst.components.health then
+          local regen = TUNING.BOSS_REGEN/100*inst.components.health.maxhealth
+          inst.components.health:StartRegen(regen, 10)
+        end
+    end)
+  end)
+end
+
+for k,v in pairs(MionrsOri) do
+  AddPrefabPostInit(v, function(inst)
+    if v == "balloon" then
+      inst.components.combat:SetDefaultDamage(50)
+    elseif v == "lighter" then
+    elseif v == "spear_wathgrithr" then
+      local function onattack(inst, attacker, target)
+        if inst and inst:IsValid() and target and target:IsValid()
+          and targe.components.health and not targe.components.heal:IsDead()
+          and targe.components.comba then
+          local x, y, z = target.Transform:GetWorldPosition()
+          SpawnPrefab("sparks").Transform:SetPosition(x, y - .5, z)
+        end
+      end
+      inst.components.weapon:SetOnAttack(onattack)
+    elseif v == "wathgrithrhat" then
+      inst.components.armor:SetAbsorption(1)
+      inst.components.equippable.insulated = true
+    elseif v == "shadowduelist" then
+      --waxwell's shadowduelist
+      local function freezetarget(inst, data)
+        local target = data.target
+        local freezerate = math.random()
+        if target ~= nil and target:IsValid() and target.components.freezable ~= nil
+          and target.components.health ~= nil and not target.components.health:IsDead() then
+          if freezerate < 0.5 then
+            target.components.freezable:AddColdness(10)
+            target.components.freezable:SpawnShatterFX()
+          end
+        end
+      end
+      inst.components.health:SetAbsorptionAmount(_G.TUNING.ARMORRUINS_ABSORPTION)
+      inst:ListenForEvent("onhitother", freezetarget)
+    elseif v == "abigail" then
+      --wendy's abigail
+      local function reflectdamage(inst, data)
+        local attacker = data.attacker
+        local leader = inst.components.follower.leader
+        if attacker ~= nil and attacker:IsValid() and attacker ~= leader
+          and attacker.components.health ~= nil and attacker.components.combat ~= nil
+          and not attacker.components.health:IsDead() then
+          local reflect_damage_value = 1.5 * data.damage / (1 - (attacker.components.health.absorb or 0))
+          if math.random() > 0.7 then
+            attacker.components.combat:GetAttacked(leader, 10 * reflect_damage_value)
+          else
+            attacker.components.combat:GetAttacked(leader, reflect_damage_value)
+          end
+
+        end
+      end
+      inst:ListenForEvent("attacked", reflectdamage)
     end
   end)
 end
