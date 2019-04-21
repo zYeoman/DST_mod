@@ -759,7 +759,7 @@ AddPrefabPostInit("ruins_rubble_vase", function(inst)inst:RemoveComponent("comba
 AddPrefabPostInit("ruins_table", function(inst)inst:RemoveComponent("combat")end)
 AddPrefabPostInit("ruins_chair", function(inst)inst:RemoveComponent("combat")end)
 AddPrefabPostInit("ruins_vase", function(inst)inst:RemoveComponent("combat")end)
-
+if TUNING.BOSS_REGEN > 0 then
 -- BOSS加强
 for k, v in pairs(CreaturesOri) do
   AddPrefabPostInit(v, function(inst)
@@ -842,8 +842,8 @@ for k,v in pairs(MionrsOri) do
     elseif v == "spear_wathgrithr" then
       local function onattack(inst, attacker, target)
         if inst and inst:IsValid() and target and target:IsValid()
-          and targe.components.health and not targe.components.heal:IsDead()
-          and targe.components.comba then
+          and target.components.health and not target.components.health:IsDead()
+          and target.components.combat then
           local x, y, z = target.Transform:GetWorldPosition()
           SpawnPrefab("sparks").Transform:SetPosition(x, y - .5, z)
         end
@@ -887,4 +887,5 @@ for k,v in pairs(MionrsOri) do
       inst:ListenForEvent("attacked", reflectdamage)
     end
   end)
+end
 end

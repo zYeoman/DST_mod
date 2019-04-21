@@ -1,4 +1,3 @@
-#! /usr/bin/env lua
 --
 -- ULstrong.lua
 -- Copyright (C) 2019 Yongwen Zhuang <zeoman@163.com>
