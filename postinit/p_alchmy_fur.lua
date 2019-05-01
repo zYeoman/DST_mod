@@ -10,7 +10,7 @@ local function getspecialdescription(inst, viewer)
   return "还有"..(remainingtime or 0).."秒"
 end
 
-AddPrefebPostInit("alchmy_fur", function (inst)
+AddPrefabPostInit("alchmy_fur", function (inst)
   if inst.components.inspectable then
     inst.components.inspectable.getspecialdescription = getspecialdescription
   end
