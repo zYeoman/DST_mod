@@ -23,7 +23,7 @@ function _strong.stalker(inst)
   local function OnHealthDelta(inst)
     if inst.components.health:GetPercent() < 0.5 then
       inst.components.health:SetInvincible(true)
-      inst.components.combat.externaldamagetakenmultipliers:AddModifier("yeo_stalker", 0)
+      inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_stalker", 0)
 
       inst._fx = SpawnPrefab("forcefieldfx")
       inst._fx.entity:SetParent(inst.entity)
@@ -32,7 +32,7 @@ function _strong.stalker(inst)
 
       inst:DoTaskInTime(15, function(inst)
         inst.components.health:SetInvincible(false)
-        inst.components.combat.externaldamagetakenmultipliers:RemoveModifier("yeo_stalker", 0)
+        inst.components.combat.externaldamagetakenmultipliers:RemoveModifier("yeo_stalker")
         if inst._fx then
           inst._fx:Remove()
         end

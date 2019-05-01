@@ -654,9 +654,25 @@ if TUNING.HOUND_HEALTH >= 225      and
 
 end
 
-
 ---- 自定义内容
 if true then
+  modimport "postinit/p_any.lua"
+  -- 世界监控
+  modimport "postinit/p_world.lua"
+  -- 设置炼丹炉能炼器
+  modimport "postinit/c_stewer_fur.lua"
+  -- 炼丹炉显示剩余时间
+  modimport "postinit/p_alchmy_fur.lua"
+  -- 增加OnSave/OnLoad存储伤害以及属性
+  -- 修复铥棒
+  -- 火腿伤害降低问题 - 都修复了！通过修改setdamage函数
+  modimport "postinit/c_weapon.lua"
+  -- 取消物理碰撞
+  AddPrefabPostInit("blowdart_sleep",function(inst) inst.Physics:ClearCollisionMask() end)
+  AddPrefabPostInit("blowdart_fire",function(inst) inst.Physics:ClearCollisionMask() end)
+  AddPrefabPostInit("blowdart_pipe",function(inst) inst.Physics:ClearCollisionMask() end)
+  AddPrefabPostInit("blowdart_yellow",function(inst) inst.Physics:ClearCollisionMask() end)
+  AddPrefabPostInit("blowdart_walrus",function(inst) inst.Physics:ClearCollisionMask() end)
   print("设置BOSS的重生时间")
   -- 都是10天
   TUNING.BEEQUEEN_RESPAWN_TIME = 30 * 16 * 10        --蜂后重生时间
@@ -683,7 +699,8 @@ AddPrefabPostInit("world", function(inst)
   local function gongzi()
     for k,v in ipairs(_G.AllPlayers) do
       if v.components.seplayerstatus then
-        v.components.seplayerstatus:DoDeltaCoin(400)
+        local cycles = TheWorld.state.cycles
+        v.components.seplayerstatus:DoDeltaCoin(10*cycles)
       end
     end
   end
@@ -697,59 +714,10 @@ AddPrefabPostInit("world", function(inst)
     data._get_stronger = _G.get_stronger
   end
 end)
-local function cuimianfen(inst)
-  inst._GetAttacked = inst.components.combat.GetAttacked
-
-  inst.components.combat.GetAttacked = function(sself, attacker, damage, weapon, stimuli)
-    if math.random() > 0.8 then
-      inst._GetAttacked(sself, attacker, damage, weapon, stimuli)
-    elseif attacker:HasTag("player") and weapon ~= nil and damage > 100 then
-      TheNet:Announce("邪恶的【"..attacker:GetDisplayName().."】试图攻击〖 "..GetInstName(inst).." 〗但是被对方的催眠粉催眠了~")
-      if attacker and attacker.components and attacker.components.talker then
-        attacker.components.talker:Say("啊我睡了")
-      end
-      v = attacker
-      if v ~= inst and v:IsValid() and
-        not (v.components.freezable ~= nil and v.components.freezable:IsFrozen()) and
-        not (v.components.pinnable ~= nil and v.components.pinnable:IsStuck()) and
-        not (v.components.fossilizable ~= nil and v.components.fossilizable:IsFossilized()) then
-        local mount = v.components.rider ~= nil and v.components.rider:GetMount() or nil
-        if mount ~= nil then
-          mount:PushEvent("ridersleep", { sleepiness = 7, sleeptime = 1})
-        end
-        if v:HasTag("player") then
-          v:PushEvent("yawn", { grogginess = 4, knockoutduration = 1})
-        elseif v.components.sleeper ~= nil then
-          v.components.sleeper:AddSleepiness(7, 1)
-        elseif v.components.grogginess ~= nil then
-          v.components.grogginess:AddGrogginess(4, 1)
-        else
-          v:PushEvent("knockedout")
-        end
-      end
-    end
-  end
-end
-
-if GLOBAL.TheShard:GetShardId() ~= "1" then
-  AddPrefabPostInit("butterfly", cuimianfen)
-  AddPrefabPostInit("rabbit", cuimianfen)
-  AddPrefabPostInit("crow", cuimianfen)
-  AddPrefabPostInit("robin", cuimianfen)
-  AddPrefabPostInit("robin_winter", cuimianfen)
-  AddPrefabPostInit("canary", cuimianfen)
-  AddPrefabPostInit("quagmire_pigeon", cuimianfen)
-end
 
 AddPrefabPostInit("tallbirdnest", function(inst)
   if inst.components.burnable then
     inst:RemoveComponent("burnable")
-  end
-end)
-
-AddPrefabPostInit("spidereggsack", function(inst)
-  if inst.components.deployable then
-    inst:RemoveComponent("deployable")
   end
 end)
 
@@ -761,6 +729,11 @@ AddPrefabPostInit("ruins_chair", function(inst)inst:RemoveComponent("combat")end
 AddPrefabPostInit("ruins_vase", function(inst)inst:RemoveComponent("combat")end)
 if TUNING.BOSS_REGEN > 0 then
 -- BOSS加强
+AddPrefabPostInit("wiona_catapult", function(inst)
+  if inst.components.health then
+    inst.components.health:SetInvincible(true)
+  end
+end)
 for k, v in pairs(CreaturesOri) do
   AddPrefabPostInit(v, function(inst)
 
@@ -768,6 +741,15 @@ for k, v in pairs(CreaturesOri) do
       inst:RemoveEventCallback("attacked", siwanggonggao)
       local attacker = "【" .. GetAttacker(data) .. "】"
       local vicitim = "【".. GetInstName(inst) .."】"
+      local count = math.floor(inst.components.health.maxhealth/10000/((1-(inst.components.health.absorb or 0))*inst.components.combat.externaldamagetakenmultipliers:Get()+0.01))
+      if data and data.attacker and data.attacker.components and data.attacker.components.inventory then
+        for i=1,count or 0 do
+          local vic = SpawnPrefab('oldfish_part_gem')
+          if vic ~= nil then
+            data.attacker.components.inventory:GiveItem(vic)
+          end
+        end
+      end
       if v == "glommer" then
         TheNet:Announce("可恶的" .. attacker .. "杀死了可怜的" .. vicitim)
         return
@@ -826,10 +808,13 @@ for k, v in pairs(CreaturesOri) do
           inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
         end
       end
-        if inst.components.health then
-          local regen = TUNING.BOSS_REGEN/100*inst.components.health.maxhealth
-          inst.components.health:StartRegen(regen, 10)
-        end
+      local cycles = TheWorld.state.cycles
+      local rate = math.exp(cycles/1000)
+      if inst.components.health then
+        inst.components.health.maxhealth = math.floor(inst.components.health.maxhealth * rate)
+        local regen = TUNING.BOSS_REGEN/3/100*inst.components.health.maxhealth
+        inst.components.health:StartRegen(regen, 3)
+      end
     end)
   end)
 end
