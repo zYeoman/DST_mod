@@ -148,6 +148,7 @@ local function dopuff(inst, self)
   local pt = Vector3(inst.Transform:GetWorldPosition())
   local mk_cloudpuff = SpawnPrefab( "mk_cloudpuff" )
   mk_cloudpuff.Transform:SetPosition( pt.x , pt.y + 1, pt.z)
+  mk_cloudpuff:DoTaskInTime(3,function() mk_cloudpuff:Remove()end)
   self.puff = inst:DoTaskInTime(math.random(5,8), dopuff, self)
 end
 
