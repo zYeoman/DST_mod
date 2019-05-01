@@ -667,6 +667,8 @@ if true then
   -- 修复铥棒
   -- 火腿伤害降低问题 - 都修复了！通过修改setdamage函数
   modimport "postinit/c_weapon.lua"
+  -- 路灯
+  modimport "postinit/p_fyjiedeng.lua"
   -- 取消物理碰撞
   AddPrefabPostInit("blowdart_sleep",function(inst) inst.Physics:ClearCollisionMask() end)
   AddPrefabPostInit("blowdart_fire",function(inst) inst.Physics:ClearCollisionMask() end)
@@ -812,6 +814,7 @@ for k, v in pairs(CreaturesOri) do
       local rate = math.exp(cycles/1000)
       if inst.components.health then
         inst.components.health.maxhealth = math.floor(inst.components.health.maxhealth * rate)
+        inst.components.health:SetPercent(1)
         local regen = TUNING.BOSS_REGEN/3/100*inst.components.health.maxhealth
         inst.components.health:StartRegen(regen, 3)
       end
