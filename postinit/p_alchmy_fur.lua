@@ -7,7 +7,7 @@
 
 local function getspecialdescription(inst, viewer)
   local remainingtime = inst.components.stewer_fur.targettime ~= nil and inst.components.stewer_fur.targettime - GetTime() or 0
-  return "还有"..(remainingtime or 0).."秒"
+  return "还有"..math.floor(remainingtime or 0).."秒"
 end
 
 AddPrefabPostInit("alchmy_fur", function (inst)
