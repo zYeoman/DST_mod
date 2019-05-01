@@ -813,8 +813,7 @@ for k, v in pairs(CreaturesOri) do
       local cycles = TheWorld.state.cycles
       local rate = math.exp(cycles/1000)
       if inst.components.health then
-        inst.components.health.maxhealth = math.floor(inst.components.health.maxhealth * rate)
-        inst.components.health:SetPercent(1)
+        inst.components.health:SetMaxHealth(inst.components.health.maxhealth * rate)
         local regen = TUNING.BOSS_REGEN/3/100*inst.components.health.maxhealth
         inst.components.health:StartRegen(regen, 3)
       end
