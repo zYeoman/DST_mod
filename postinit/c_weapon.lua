@@ -98,17 +98,23 @@ end
 c_onattack.vorpal = function(self, attacker, target, v)
   -- 秒杀
   local modifier = v/(10+v)
+  local flag = 0
   if target and target:IsValid() and target.components.health then
     if target.components.health.maxhealth < 5000 and math.random() < modifier then
-      target.components.health:SetVal(0)
-      return
+      flag = 1
     end
     if target.components.health.maxhealth < 20000 and math.random() < modifier*0.1 then
-      target.components.health:SetVal(0)
-      return
+      flag = 1
     end
     if math.random() < modifier*0.01 then
-      target.components.health:SetVal(0)
+      flag = 1
+    end
+    if flag == 1 then
+      target.components.health:Kill()
+      attacker:PushEvent("killed", { victim = target })
+      if attacker.components.talker then
+        attacker.components.talker:Say("秒了！")
+      end
       return
     end
   end
