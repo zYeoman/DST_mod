@@ -773,6 +773,9 @@ for k, v in pairs(CreaturesOri) do
       inst:ListenForEvent("attacked", siwanggonggao)
     end
     local function onremove(inst)
+      if inst.components.health and inst.components.health:IsDead() then
+        return
+      end
       local vicitim = "【".. GetInstName(inst) .."】"
       TheNet:Announce(vicitim.."消失了")
     end
