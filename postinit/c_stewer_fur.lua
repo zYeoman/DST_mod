@@ -169,14 +169,6 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
           self.task:Cancel()
         end
         self.task = self.inst:DoTaskInTime(cooktime, dostew, self)
-        for i=1,cooktime do
-          self.inst:DoTaskInTime(i,function(inst)
-            if self.inst.components.talker == nil then
-              self.inst:AddComponent("talker")
-            end
-            self.inst.components.talker:Say("还剩"..cooktime-i.."s")
-          end)
-        end
 
         if self.puff ~= nil then
           self.puff:Cancel()
