@@ -670,11 +670,51 @@ if true then
   -- 路灯
   modimport "postinit/p_fyjiedeng.lua"
   -- 取消物理碰撞
-  AddPrefabPostInit("blowdart_sleep",function(inst) inst.Physics:ClearCollisionMask() end)
-  AddPrefabPostInit("blowdart_fire",function(inst) inst.Physics:ClearCollisionMask() end)
-  AddPrefabPostInit("blowdart_pipe",function(inst) inst.Physics:ClearCollisionMask() end)
-  AddPrefabPostInit("blowdart_yellow",function(inst) inst.Physics:ClearCollisionMask() end)
-  AddPrefabPostInit("blowdart_walrus",function(inst) inst.Physics:ClearCollisionMask() end)
+  -- AddPrefabPostInit("blowdart_sleep",function(inst) inst.Physics:ClearCollisionMask() end)
+  -- AddPrefabPostInit("blowdart_fire",function(inst) inst.Physics:ClearCollisionMask() end)
+  -- AddPrefabPostInit("blowdart_pipe",function(inst) inst.Physics:ClearCollisionMask() end)
+  -- AddPrefabPostInit("blowdart_yellow",function(inst) inst.Physics:ClearCollisionMask() end)
+  -- AddPrefabPostInit("blowdart_walrus",function(inst) inst.Physics:ClearCollisionMask() end)
+  local function Id2Player(id)
+    local player = nil
+    for k,v in pairs(GLOBAL.AllPlayers) do
+      if v.userid == id then
+        player = v
+      end
+    end
+    return player
+  end
+
+  local OldNetworking_Say = GLOBAL.Networking_Say
+  GLOBAL.Networking_Say = function(guid, userid, name, prefab, message, colour, whisper, isemote)
+    local inst = Id2Player(userid)
+    if inst == nil then
+      return OldNetworking_Say(guid, userid, name, prefab, message, colour, whisper, isemote)
+    end
+    local showoldsay=true
+    if string.len(message)>1 and string.sub(message,1,1) == "#" then
+      local commands = {}
+      for command in string.gmatch(string.sub(message,2,string.len(message)), "%S+") do
+        print(string.lower(command))
+        table.insert(commands, string.lower(command))
+      end
+      if commands[1]=="称号" or commands[1]=="ch" then
+        showoldsay = false
+        local chenghao = commands[2]
+        if chenghao ~= nil and chenghao ~= "" then
+          if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100000 then
+            inst.components.seplayerstatus:DoDeltaCoin(-100000)
+            if inst.components.oldfish then
+              inst.components.oldfish.name = chenghao
+            end
+          end
+        end
+      end
+    end
+    if showoldsay then
+      return OldNetworking_Say(guid, userid, name, prefab, message, colour, whisper, isemote)
+    end
+  end
   print("设置BOSS的重生时间")
   -- 都是10天
   TUNING.BEEQUEEN_RESPAWN_TIME = 30 * 16 * 10        --蜂后重生时间
@@ -757,7 +797,7 @@ for k, v in pairs(CreaturesOri) do
         return
       end
       if v == "klaus" then
-        if inst.kaimiao and inst.kaimiao == 1 then
+        if inst.kaimiao and inst.kaimiao == 0 then
           TheNet:Announce(attacker.."解开了"..vicitim.."的锁链")
           return
         end
