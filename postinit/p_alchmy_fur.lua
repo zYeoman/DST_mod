@@ -7,7 +7,11 @@
 
 local function getspecialdescription(inst, viewer)
   local remainingtime = inst.components.stewer_fur.targettime ~= nil and inst.components.stewer_fur.targettime - GetTime() or 0
-  return "还有"..math.floor(remainingtime or 0).."秒"
+  if remainingtime > TUNING.TOTAL_DAY_TIME then
+    return "还要炼"..math.floor(remainingtime/TUNING.TOTAL_DAY_TIME).."天"
+  else
+    return "还要炼"..math.floor(remainingtime).."秒"
+  end
 end
 
 AddPrefabPostInit("alchmy_fur", function (inst)
