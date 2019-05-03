@@ -51,13 +51,23 @@ local function onplayernear(inst, player)
   local playerid = player and player.userid or nil
   if ownerlist ~= nil and playerid ~= nil then
     if ownerlist.master == playerid then
+      for k,v in pairs(GLOBAL.Ents) do
+        if v.prefab == "fyjiedeng" then
+          if v ~= inst and v.ownerlist and v.ownerlist.master == playerid then
+            inst.ownerlist.master = nil
+            player.components.talker:Say("只有第一个街灯有效~")
+            return
+          end
+        end
+      end
       if player._jiahu == nil then
         jiahu(player)
         player._jiahu = player:DoPeriodicTask(1,function()
-          if not player:IsNear(inst, 10) then
+          if not (player:IsValid() and inst:IsValid() and player:IsNear(inst, 10)) then
             nojiahu(player)
             player._jiahu:Cancel()
             player._jiahu = nil
+            return
           end
           local x, y, z = inst.Transform:GetWorldPosition()
           local ents = TheSim:FindEntities(x, y, z, 5, {"monster"})
