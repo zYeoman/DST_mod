@@ -90,8 +90,12 @@ end
 c_onattack.crit = function(self, attacker, target, v)
   -- 暴击
   local modifier = v/(6+v)
-  if math.random() < modifier then
-    target.components.combat:GetAttacked(attacker, attacker.components.combat:CalcDamage(target, self.inst)*2,self.inst)
+  if math.random() < modifier and target:IsValid() then
+    target:DoTaskInTime(0.1, function ()
+      if not target.components.health:IsDead() then
+        target.components.combat:GetAttacked(attacker, attacker.components.combat:CalcDamage(target, self.inst)*2,self.inst)
+      end
+    end)
   end
 end
 
@@ -161,7 +165,11 @@ c_onattack.sharp = function(self, attacker, target, v)
   local modifier = v/(5+v)
   if math.random() < modifier then
     local damagetaken = (1-target.components.health.absorb or 0)*target.components.combat.externaldamagetakenmultipliers:Get()
-    target.components.combat:GetAttacked(attacker, attacker.components.combat:CalcDamage(target, self.inst)*modifier/(damagetaken+0.1),self.inst)
+    target:DoTaskInTime(0.1, function ()
+      if not target.components.health:IsDead() then
+        target.components.combat:GetAttacked(attacker, attacker.components.combat:CalcDamage(target, self.inst)*modifier/(damagetaken+0.1),self.inst)
+      end
+    end)
   end
 end
 -- 修改颜色 https://forums.kleientertainment.com/forums/topic/69594-solved-how-to-make-character-glow-a-certain-color/
@@ -222,6 +230,7 @@ AddComponentPostInit("weapon", function(Weapon)
     if self.basedamage == 0 then
       self.basedamage = self.damage
     end
+    if value < 0 then return end
     self.externaldamage:SetModifier(key, value)
     self.exterlist[key] = value
     self.damage = self.basedamage + self.externaldamage:Get()

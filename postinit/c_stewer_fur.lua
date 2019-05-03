@@ -237,7 +237,7 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
               name = name .. '\n' .. desc[key] .. ' : +' .. value
             end
             loot.components.named:SetName(name)
-            local damage = loot.components.weapon.externaldamage:Get()/2 - (loot.components.weapon.basedamage or 0) / 2
+            local damage = loot.components.weapon.damage/2
             for i = 2, self.inst.components.container.numslots do
               local item = self.inst.components.container:RemoveItemBySlot(i)
               if item ~= nil then
@@ -245,6 +245,7 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
                 item:Remove()
               end
             end
+            damage = damage - (loot.components.weapon.basedamage or 0)
             loot.components.weapon:AddDamage("stewer", math.min(damage, loot.components.weapon.damage or 99999))
           end
         else
