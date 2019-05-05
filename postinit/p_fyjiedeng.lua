@@ -24,10 +24,14 @@ local function nojiahu(inst)
   end
   inst.components.health:SetMinHealth(0)
   if inst.components.oldfish then
-    inst.components.oldfish.name = TUNING.OLDFISH_NAME[math.floor(inst.components.oldfish.level / 100)].name
+    inst.components.oldfish.name = inst._jiahu_oldname or TUNING.OLDFISH_NAME[math.floor(inst.components.oldfish.level / 100)].name
+  end
+  if inst:HasTag("notarget") then
+    inst:RemoveTag("notarget")
   end
 end
 local function jiahu(inst)
+  inst:AddTag("notarget")
   if inst.components.combat then
     inst.components.combat.externaldamagemultipliers:SetModifier("jiahu",0)
     inst.components.combat.externaldamagetakenmultipliers:SetModifier("jiahu",0)
