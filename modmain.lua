@@ -763,6 +763,12 @@ AddPrefabPostInit("tallbirdnest", function(inst)
   end
 end)
 
+AddPrefabPostInit("slurtlehole", function (inst)
+  if inst.components.health then
+    inst.components.health:SetAbsorptionAmount(1)
+  end
+end)
+
 AddPrefabPostInit("ruins_rubble_table", function(inst)inst:RemoveComponent("combat")end)
 AddPrefabPostInit("ruins_rubble_chair", function(inst)inst:RemoveComponent("combat")end)
 AddPrefabPostInit("ruins_rubble_vase", function(inst)inst:RemoveComponent("combat")end)
