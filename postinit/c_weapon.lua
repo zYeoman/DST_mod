@@ -26,7 +26,7 @@ c_onattack.fire = function(self, attacker, target, v)
   -- 点燃，降低伤害和护甲
   local modifier = v/(3+v)
   target._onignite = math.max(target._onignite or 0, modifier)
-  if math.random() < modifier then
+  if math.random() < modifier and target.components.combat then
     local fx = SpawnPrefab("explode_small")
     fx.Transform:SetPosition(target.Transform:GetWorldPosition())
     if target.components.burnable and not target.components.burnable:IsBurning() then
@@ -154,7 +154,7 @@ end
 
 c_onattack.grow = function(self, attacker, target, v)
   -- 成长
-  if target and target:IsValid() and target.components.health:IsDead() and math.random() < 0.1 then
+  if target and target:IsValid() and target.components.health and target.components.health:IsDead() and target.components.health.maxhealth > 1000 and math.random() < 0.1 then
     self:SetDamage(self.basedamage + v)
   end
 end
