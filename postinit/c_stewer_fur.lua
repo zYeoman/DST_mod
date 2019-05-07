@@ -249,13 +249,11 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
             addtype(loot, weapon_types, math.random(3,5))
             if loot.components.named == nil then
               loot:AddComponent("named")
+              loot.components.named:SetName()
             end
-            local originName = STRINGS.NAMES[string.upper(loot.prefab)]
-            local name = originName
             for key, value in pairs(loot.components.weapon.types) do
-              name = name .. '\n' .. desc[key] .. ' : +' .. value
+              loot.components.named:AddName(key, desc[key] .. ' : +' .. value)
             end
-            loot.components.named:SetName(name)
             local damage = loot.components.weapon.damage/2
             for i = 2, self.inst.components.container.numslots do
               local item = self.inst.components.container:RemoveItemBySlot(i)

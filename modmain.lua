@@ -671,6 +671,8 @@ if true then
   modimport "postinit/p_players.lua"
   -- 路灯
   modimport "postinit/p_fyjiedeng.lua"
+  -- 命名扩展
+  modimport "postinit/c_named.lua"
   -- 取消物理碰撞
   -- AddPrefabPostInit("blowdart_sleep",function(inst) inst.Physics:ClearCollisionMask() end)
   -- AddPrefabPostInit("blowdart_fire",function(inst) inst.Physics:ClearCollisionMask() end)
@@ -697,7 +699,6 @@ if true then
     if string.len(message)>1 and string.sub(message,1,1) == "#" then
       local commands = {}
       for command in string.gmatch(string.sub(message,2,string.len(message)), "%S+") do
-        print(string.lower(command))
         table.insert(commands, string.lower(command))
       end
       if commands[1]=="称号" or commands[1]=="ch" then
