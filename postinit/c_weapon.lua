@@ -155,7 +155,8 @@ end
 c_onattack.grow = function(self, attacker, target, v)
   -- 成长
   if target and target:IsValid() and target.components.health and target.components.health:IsDead() and target.components.health.maxhealth > 1000 and math.random() < 0.1 then
-    self:SetDamage(self.basedamage + v)
+    local chengzhang = self.exterlist['chengzhang'] or 0
+    self:AddDamage('chengzhang', chengzhang+v)
   end
 end
 
