@@ -93,6 +93,23 @@ local function cookcook(inst)
     return "bloodthirsty_pill" , c --嗜血
   elseif inst:Has("gunpowder", 1) and inst:Has("stinger", 1) and inst:Has("durian", 1) and inst:Has("nightmarefuel", 1) then
     return "condensed_pill" , c --凝神
+  elseif inst:Has("redgem", 1) and inst:Has("goose_feather", 3) then
+    return "mk_hualing" , 60 --花翎
+
+  elseif inst:Has("bigpeach", 1) and inst:Has("rocks", 2) and inst:Has("shadowheart", 1) then
+    return "mk_huoyuan" , 60 --火猿石心
+
+  elseif inst:Has("bearger_fur", 1) and inst:Has("dragon_scales", 2) and inst:Has("shroom_skin", 1) then
+    return "mk_longpi" , 60 --龙皮绸缎
+
+  elseif inst:Has("mk_longpi", 1) and inst:Has("armorruins", 1) and inst:Has("mk_huoyuan", 1) and inst:Has("walrus_tusk", 1) then
+    return "golden_armor_mk" , 240 --大圣锁子甲
+
+  elseif inst:Has("golden_armor_mk", 1) and inst:Has("redgem", 1) and inst:Has("bluegem", 1) and inst:Has("purplegem", 1) then
+    return "golden_armor_mk" , 120 --重练大圣锁子甲
+
+  elseif inst:Has("mk_hualing", 2) and inst:Has("ruinshat", 1) and inst:Has("orangemooneye", 1) then
+    return "golden_hat_mk" , 240 --凤翅紫金冠
   else
     local i = 0
     local value = 0
