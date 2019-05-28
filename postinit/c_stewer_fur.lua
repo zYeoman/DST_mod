@@ -110,6 +110,8 @@ local function cookcook(inst)
 
   elseif inst:Has("mk_hualing", 2) and inst:Has("ruinshat", 1) and inst:Has("orangemooneye", 1) then
     return "golden_hat_mk" , 240 --凤翅紫金冠
+  elseif inst:Has("golden_hat_mk", 1) and inst:Has("redgem", 1) and inst:Has("bluegem", 1) and inst:Has("purplegem", 1) then
+    return "golden_hat_mk" , 120 --重练凤翅紫金冠
   else
     local i = 0
     local value = 0
