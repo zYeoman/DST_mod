@@ -54,16 +54,19 @@ local function onplayernear(inst, player)
   local ownerlist = inst.ownerlist or nil
   local playerid = player and player.userid or nil
   if ownerlist ~= nil and playerid ~= nil then
-    if ownerlist.master == playerid then
+    if ownerlist.jiahu == nil then
       for k,v in pairs(GLOBAL.Ents) do
         if v.prefab == "fyjiedeng" then
-          if v ~= inst and v.ownerlist and v.ownerlist.master == playerid then
-            inst.ownerlist.master = nil
+          if v ~= inst and v.ownerlist and v.ownerlist.master == inst.ownerlist.master and v.ownerlist.jiahu == true then
+            inst.ownerlist.jiahu = false
             player.components.talker:Say("只有第一个街灯有效~")
             return
           end
         end
       end
+      ownerlist.jiahu = true
+    end
+    if ownerlist.master == playerid and ownerlist.jiahu == true then
       if player._jiahu == nil then
         jiahu(player)
         player._jiahu = player:DoPeriodicTask(1,function()
