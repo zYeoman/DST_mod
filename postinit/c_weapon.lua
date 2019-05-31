@@ -164,7 +164,7 @@ c_onattack.sharp = function(self, attacker, target, v)
   -- 锋锐
   -- 部分伤害破甲
   local modifier = v/(5+v)
-  if math.random() < modifier then
+  if math.random() < modifier and target.components.health then
     local damagetaken = (1-target.components.health.absorb or 0)*target.components.combat.externaldamagetakenmultipliers:Get()
     target:DoTaskInTime(0.1, function ()
       if not target.components.health:IsDead() then
