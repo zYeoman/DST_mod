@@ -8,6 +8,34 @@
 -- types = {}
 -- types.sometype = n
 -- types: fire,
+-- c_onattack.fire = function(self, attacker, target, v)
+-- 点燃，降低伤害和护甲
+-- c_onattack.ice = function(self, attacker, target, v)
+-- 冰冻
+-- c_onattack.lifesteal = function(self, attacker, target, v)
+-- 吸血
+-- c_onattack.shrinker = function(self, attacker, target, v)
+-- 减速
+-- c_onattack.crit = function(self, attacker, target, v)
+-- 暴击
+-- c_onattack.vorpal = function(self, attacker, target, v)
+-- 秒杀
+-- c_onattack.poison = function(self, attacker, target, v)
+-- 剧毒
+-- c_onattack.repair = function(self, attacker, target, v)
+-- 再生
+-- c_onattack.grow = function(self, attacker, target, v)
+-- 成长
+-- c_onattack.sharp = function(self, attacker, target, v)
+-- 锋锐
+-- c_onattack.dehealth = function(self, attacker, target, v)
+-- 剧毒
+-- c_onattack.thorny = function(self, attacker, target, v)
+-- 带刺
+-- c_onattack.slippery = function(self, attacker, target, v)
+-- 湿滑
+-- c_onattack.disappear = function(self, attacker, target, v)
+-- 残破
 
 local SourceModifierList = require("util/sourcemodifierlist")
 local function debounce(inst, name, time, fx)
@@ -20,7 +48,7 @@ local function debounce(inst, name, time, fx)
   inst._debounce[name] = inst:DoTaskInTime(time, fx)
 end
 
-c_onattack = {}
+local c_onattack = {}
 
 c_onattack.fire = function(self, attacker, target, v)
   -- 点燃，降低伤害和护甲
@@ -103,7 +131,7 @@ c_onattack.vorpal = function(self, attacker, target, v)
   -- 秒杀
   local modifier = v/(10+v)
   local flag = 0
-  if target and target:IsValid() and target.components.health then
+  if true then
     if target.components.health.maxhealth < 5000 and math.random() < modifier then
       flag = 1
     end
@@ -154,7 +182,7 @@ end
 
 c_onattack.grow = function(self, attacker, target, v)
   -- 成长
-  if target and target:IsValid() and target.components.health and target.components.health:IsDead() and target.components.health.maxhealth > 1000 and math.random() < 0.1 then
+  if target.components.health:IsDead() and target.components.health.maxhealth > 1000 and math.random() < 0.1 then
     local chengzhang = self.exterlist['chengzhang'] or 0
     self:AddDamage('chengzhang', chengzhang+v)
   end
@@ -164,8 +192,8 @@ c_onattack.sharp = function(self, attacker, target, v)
   -- 锋锐
   -- 部分伤害破甲
   local modifier = v/(5+v)
-  if math.random() < modifier and target.components.health then
-    local damagetaken = (1-target.components.health.absorb or 0)*target.components.combat.externaldamagetakenmultipliers:Get()
+  if math.random() < modifier then
+    local damagetaken = (1-target.components.health.absorb or 0)* target.components.combat.externaldamagetakenmultipliers:Get()
     target:DoTaskInTime(0.1, function ()
       if not target.components.health:IsDead() then
         target.components.combat:GetAttacked(attacker, attacker.components.combat:CalcDamage(target, self.inst)*modifier/(damagetaken+0.1),self.inst)
@@ -267,10 +295,10 @@ AddComponentPostInit("weapon", function(Weapon)
   local oldOnAttack = Weapon.OnAttack
   function Weapon:OnAttack(attacker, target, projectile)
     oldOnAttack(self, attacker, target, projectile)
-    if target and target:IsValid() then
-      for k,v in pairs(self.types or {}) do
-        if c_onattack[k] then
-          c_onattack[k](self, attacker, target, v)
+    if target and target:IsValid() and target.components.health and target.components.combat then
+      for key,value in pairs(self.types or {}) do
+        if c_onattack[key] then
+          c_onattack[key](self, attacker, target, value)
         end
       end
     end
