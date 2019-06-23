@@ -183,8 +183,8 @@ end
 c_onattack.grow = function(self, attacker, target, v)
   -- 成长
   if target.components.health:IsDead() and target.components.health.maxhealth > 1000 and math.random() < 0.1 then
-    local chengzhang = self.exterlist['chengzhang'] or 0
-    self:AddDamage('chengzhang', chengzhang+v)
+    local chengzhang = self.externaldamage:CalculateModifierFromSource('chengzhang')
+    self:SetDamage(chengzhang+math.random(v*3)-v, 'chengzhang')
   end
 end
 
@@ -252,44 +252,41 @@ c_onattack.disappear = function(self, attacker, target, v)
 end
 
 AddComponentPostInit("weapon", function(Weapon)
-  Weapon.basedamage = 0
-  Weapon.exterlist = {}
   Weapon.externaldamage = SourceModifierList(Weapon.inst, 1, SourceModifierList.additive)
-  function Weapon:AddDamage(key, value)
-    if self.basedamage == 0 then
-      self.basedamage = self.damage
-    end
-    if value < 0 then return end
-    self.externaldamage:SetModifier(key, value)
-    self.exterlist[key] = value
-    self.damage = self.basedamage + self.externaldamage:Get()
-  end
-  function Weapon:SetDamage(dmg)
+  function Weapon:SetDamage(dmg, key)
     if dmg==nil then
       return
     end
-    self.basedamage = dmg
-    self.damage = self.basedamage + self.externaldamage:Get()
+    if key==nil then
+      key='base'
+    end
+    self.externaldamage:SetModifier(key, dmg)
+    self.damage = self.externaldamage:Get()
   end
   function Weapon:OnSave()
-    self.types = self.types or {}
+    -- TODO: 下次开服改成直接储存_modifiers
+    local exterlist = {}
+    for source, src_params in pairs(self.externaldamage._modifiers) do
+      local m=0
+      for _, v in pairs(src_params.modifiers) do
+        m = m + v
+      end
+      exterlist[source] = m
+    end
     return
     {
-      basedamage = self.basedamage or 0,
-      exterlist = self.exterlist,
-      types = self.types
+      exterlist = exterlist,
+      types = self.types or {}
     }
   end
   function Weapon:OnLoad(data)
+    -- TODO: 下次开服改成直接储存_modifiers
     if data.exterlist ~= nil then
-      self.exterlist = data.exterlist
       for k, v in pairs(data.exterlist) do
-        self.externaldamage = SourceModifierList(Weapon.inst, 1, SourceModifierList.additive)
         self.externaldamage:SetModifier(k, v)
       end
-      self.damage = self.basedamage + self.externaldamage:Get()
     end
-    self.basedamage = data.basedamage or 0
+    self.damage = self.externaldamage:Get()
     self.types = data.types or {}
   end
   local oldOnAttack = Weapon.OnAttack
