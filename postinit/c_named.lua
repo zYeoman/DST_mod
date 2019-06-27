@@ -23,18 +23,18 @@ AddComponentPostInit("named", function (Named)
     end
   end
 
-  function Named:SetName(name)
-    self.name = name
+  function Named:SetName(name, key)
     if name == nil then
       self.inst.name = STRINGS.NAMES[string.upper(self.inst.prefab)]
       self.inst.replica.named:SetName("")
     else
+      if key~=nil then
+        self.namelist[key] = value
+      else
+        self.name = name
+      end
       DoSetName(self)
     end
-  end
-  function Named:AddName(key, value)
-    self.namelist[key] = value
-    DoSetName(self)
   end
   function Named:OnSave()
     return
