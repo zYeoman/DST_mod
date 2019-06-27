@@ -182,7 +182,12 @@ end
 
 c_onattack.grow = function(self, attacker, target, v)
   -- 成长
-  if target.components.health:IsDead() and target.components.health.maxhealth > 1000 and math.random() < 0.1 then
+  if self.grow_from ~= target.GUID
+    and target.components.health:IsDead()
+    and target.components.health.maxhealth > 1000
+    and math.random() < 0.1
+  then
+    self.grow_from = target.GUID
     local chengzhang = self.externaldamage:CalculateModifierFromSource('chengzhang')
     self:SetDamage(chengzhang+math.random(v*3)-v, 'chengzhang')
   end
