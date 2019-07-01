@@ -1,4 +1,3 @@
-#! /usr/bin/env lua
 --
 -- p_players.lua
 -- Copyright (C) 2019 Yongwen Zhuang <zyeoman@163.com>
