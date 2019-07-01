@@ -7,7 +7,7 @@
 -- 名称修改
 
 AddComponentPostInit("named", function (Named)
-  self.namelist = {}
+  Named.namelist = {}
   local function DoSetName(self)
     local name = self.nameformat ~= nil and string.format(self.nameformat, self.name) or self.name
     for k, v in pairs(self.namelist) do
@@ -51,7 +51,7 @@ AddComponentPostInit("named", function (Named)
     if data ~= nil and data.name ~= nil then
       self.nameformat = data.nameformat
       self.name = data.name
-      self.namelist = data.namelist
+      self.namelist = data.namelist or {}
       DoSetName(self)
     end
   end
