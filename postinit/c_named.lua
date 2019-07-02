@@ -14,7 +14,7 @@ AddComponentPostInit("named", function (Named)
       name = name .. '\n' .. v
     end
     self.inst.name = name
-    self.inst.replica.named:SetName(self.inst.name)
+    self.inst.replica.named:SetName(self.inst.name or "")
   end
   function Named:PickNewName()
     if self.possiblenames ~= nil and #self.possiblenames > 0 then
@@ -25,13 +25,19 @@ AddComponentPostInit("named", function (Named)
 
   function Named:SetName(name, key)
     if name == nil then
-      self.inst.name = STRINGS.NAMES[string.upper(self.inst.prefab)]
-      self.inst.replica.named:SetName("")
+      if self.name == nil then
+        self.name = STRINGS.NAMES[string.upper(self.inst.prefab)]
+        self.inst.name = STRINGS.NAMES[string.upper(self.inst.prefab)]
+        self.inst.replica.named:SetName(self.inst.name or "")
+      end
     else
       if key~=nil then
-        self.namelist[key] = value
+        self.namelist[key] = name
       else
         self.name = name
+      end
+      if self.name == nil then
+        self.name = STRINGS.NAMES[string.upper(self.inst.prefab)]
       end
       DoSetName(self)
     end
