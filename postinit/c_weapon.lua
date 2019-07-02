@@ -64,7 +64,7 @@ c_onattack.fire = function(self, attacker, target, v)
         target.components.burnable:Ignite()
         target.components.burnable:SetBurnTime(10*modifier)
         target.components.combat.externaldamagemultipliers:SetModifier("onignite", 1-target._onignite)
-        target.components.combat.externaldamagetakenmultipliers:SetModifier("onignite", 1+2*target._onignite)
+        target.components.combat.externaldamagetakenmultipliers:SetModifier("onignite", 1+target._onignite)
       end
     end
     if target.components.freezable then
@@ -175,7 +175,7 @@ c_onattack.repair = function(self, attacker, target, v)
   local modifier = v/(5+v)
   if math.random() < modifier then
     if self.inst.components.finiteuses then
-      self.inst.components.finiteuses:Use(-v)
+      self.inst.components.finiteuses:Use(-2)
     end
   end
 end
@@ -184,13 +184,18 @@ c_onattack.grow = function(self, attacker, target, v)
   -- 成长
   local chengzhang = self.externaldamage:CalculateModifierFromSource('chengzhang')
   -- 削弱！！！
-  local modifier = 1/(chengzhang/v+1) * (math.sqrt(target.components.health.maxhealth / 1000+1)-1)
+  local modifier = 1/(chengzhang/(v+1)+1) * (math.sqrt(target.components.health.maxhealth / 1000+1)-1)
   if self.grow_from ~= target.GUID
     and target.components.health:IsDead()
     and math.random() < modifier
   then
     self.grow_from = target.GUID
-    self:SetDamage(chengzhang+math.random(v*3)-v, 'chengzhang')
+    local range = self.attackrange or 1
+    if range>3 then
+      self:SetDamage(chengzhang+math.random(v*3)-v, 'chengzhang')
+    else
+      self:SetDamage(chengzhang+math.random(v*4)-v, 'chengzhang')
+    end
   end
 end
 
