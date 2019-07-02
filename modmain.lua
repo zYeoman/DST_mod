@@ -858,6 +858,14 @@ for k, v in pairs(CreaturesOri) do
     if GLOBAL.TheShard:GetShardId() ~= "1" then
       inst:DoTaskInTime(0.1, function()
         if inst.book_summon~=true and (v=="bearger" or v=="dragonfly" or v=="deerclops" or v=="minortaur" or v=="moose" or v=="toadstool" or v=="minotaur") then
+          local cycles = TheWorld.state.cycles
+          local rate = math.exp(cycles/800)+2
+          if inst.components.health then
+            inst.components.health:SetMaxHealth(inst.components.health.maxhealth * rate)
+            local regen = TUNING.BOSS_REGEN/100*inst.components.health.maxhealth
+            inst.components.health:StartRegen(regen, 1)
+          end
+          inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 0.6)
           absorb = 0
         else
           if inst.components.combat then
