@@ -744,8 +744,9 @@ AddPrefabPostInit("world", function(inst)
   local function gongzi()
     for k,v in ipairs(_G.AllPlayers) do
       if v.components.seplayerstatus then
-        local cycles = TheWorld.state.cycles
-        v.components.seplayerstatus:DoDeltaCoin(10*cycles)
+        local cycles1 = TheWorld.state.cycles*10
+        local cycles2 = v.components.age:GetAgeInDays()*100
+        v.components.seplayerstatus:DoDeltaCoin(math.max(cycles1, cycles2))
       end
     end
   end
@@ -794,7 +795,7 @@ for k, v in pairs(CreaturesOri) do
       local vicitim = "【".. GetInstName(inst) .."】"
       local count = math.floor(inst.components.health.maxhealth/10000/((1-(inst.components.health.absorb or 0))*inst.components.combat.externaldamagetakenmultipliers:Get()+0.01))
       if data and data.attacker and data.attacker.components and data.attacker.components.inventory then
-        for i=1,count or 0 do
+        for i=1,math.min(99, count) or 0 do
           local vic = SpawnPrefab('oldfish_part_gem')
           if vic ~= nil then
             data.attacker.components.inventory:GiveItem(vic)
@@ -852,24 +853,26 @@ for k, v in pairs(CreaturesOri) do
     end
 
     local stronger = _G.get_stronger[v] or 1
-    local absorb = 0.5*stronger/(100+stronger)
+    local absorb = stronger/(10+stronger)
 
-    inst:DoTaskInTime(0.1, function()
-      if inst.book_summon~=true and (v=="bearger" or v=="dragonfly" or v=="deerclops" or v=="minortaur" or v=="moose" or v=="toadstool" or v=="minotaur") then
-        absorb = 0
-      else
-        if inst.components.combat then
-          inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
+    if GLOBAL.TheShard:GetShardId() ~= "1" then
+      inst:DoTaskInTime(0.1, function()
+        if inst.book_summon~=true and (v=="bearger" or v=="dragonfly" or v=="deerclops" or v=="minortaur" or v=="moose" or v=="toadstool" or v=="minotaur") then
+          absorb = 0
+        else
+          if inst.components.combat then
+            inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
+          end
+          local cycles = TheWorld.state.cycles
+          local rate = math.exp(cycles/1000)
+          if inst.components.health then
+            inst.components.health:SetMaxHealth(inst.components.health.maxhealth * rate)
+            local regen = TUNING.BOSS_REGEN/5/100*inst.components.health.maxhealth
+            inst.components.health:StartRegen(regen, 5)
+          end
         end
-      end
-      local cycles = TheWorld.state.cycles
-      local rate = math.exp(cycles/1000)
-      if inst.components.health then
-        inst.components.health:SetMaxHealth(inst.components.health.maxhealth * rate)
-        local regen = TUNING.BOSS_REGEN/3/100*inst.components.health.maxhealth
-        inst.components.health:StartRegen(regen, 3)
-      end
-    end)
+      end)
+    end
   end)
 end
 
