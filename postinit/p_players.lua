@@ -14,7 +14,7 @@ AddPlayerPostInit(function(inst)
       local weapon = inst.components.combat:GetWeapon()
       if weapon ~= nil then
         local chengzhang = weapon.components.weapon.externaldamage:CalculateModifierFromSource('chengzhang')
-        weapon.components.weapon:SetDamage(chengzhang*0.9, 'chengzhang')
+        weapon.components.weapon:SetDamage(chengzhang*0.8, 'chengzhang')
       end
     end
   end)

@@ -83,6 +83,8 @@ local function onplayernear(inst, player)
               v:Remove()
             end
           end
+          player.components.sanity:DoDelta(5)
+          player.components.hunger:DoDelta(5)
         end)
       end
     else
