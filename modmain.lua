@@ -853,11 +853,11 @@ for k, v in pairs(CreaturesOri) do
     end
 
     local stronger = _G.get_stronger[v] or 1
-    local absorb = stronger/(10+stronger)
+    local absorb = stronger/(20+stronger)
 
     if GLOBAL.TheShard:GetShardId() ~= "1" then
       inst:DoTaskInTime(0.1, function()
-        if inst.book_summon~=true and (v=="bearger" or v=="dragonfly" or v=="deerclops" or v=="minortaur" or v=="moose" or v=="toadstool" or v=="minotaur") then
+        if inst.book_summon~=true and inst:HasTag("epic") then
           local cycles = TheWorld.state.cycles
           local rate = math.exp(cycles/800)+2
           if inst.components.health then
@@ -865,8 +865,8 @@ for k, v in pairs(CreaturesOri) do
             local regen = TUNING.BOSS_REGEN/100*inst.components.health.maxhealth
             inst.components.health:StartRegen(regen, 1)
           end
-          inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 0.6)
-          absorb = 0
+          absorb = stronger/(10+stronger)
+          inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
         else
           if inst.components.combat then
             inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
