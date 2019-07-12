@@ -712,6 +712,26 @@ if true then
             end
           end
         end
+      elseif commands[1]=="升级" or commands[1]=="levelup" then
+        showoldsay = false
+        if inst.components.inventory then
+          local gem = inst.components.inventory:FindItem(function(v) return v.prefab=="oldfish_part_gem" end)
+          if gem then
+            local count = gem.components.stackable:StackSize()
+            if inst.components.oldfish then
+              while count > 3 and inst.oldfish_level:value()%250 ~= 0 do
+                local exp_plus = 100 * inst.oldfish_level:value() * math.exp(-1 * inst.oldfish_level:value() / 900)
+                inst.components.oldfish:DoDelta_exp(exp_plus)
+                count = count-4
+              end
+            end
+            if count == 0 then
+              gem:Remove()
+            else
+              gem.components.stackable:SetStackSize(count)
+            end
+          end
+        end
       end
     end
     if showoldsay then
@@ -779,6 +799,13 @@ AddPrefabPostInit("ruins_rubble_vase", function(inst)inst:RemoveComponent("comba
 AddPrefabPostInit("ruins_table", function(inst)inst:RemoveComponent("combat")end)
 AddPrefabPostInit("ruins_chair", function(inst)inst:RemoveComponent("combat")end)
 AddPrefabPostInit("ruins_vase", function(inst)inst:RemoveComponent("combat")end)
+AddPrefabPostInit("wall_wood", function(inst)inst:RemoveComponent("combat")end)
+-- 升级水晶叠加上限
+AddPrefabPostInit("oldfish_part_gem", function(inst)
+  if inst.components.stackable then
+    inst.components.stackable.maxsize = 999
+  end
+end)
 if TUNING.BOSS_REGEN > 0 then
 -- BOSS加强
 AddPrefabPostInit("wiona_catapult", function(inst)
@@ -866,7 +893,9 @@ for k, v in pairs(CreaturesOri) do
             inst.components.health:StartRegen(regen, 1)
           end
           absorb = stronger/(10+stronger)
-          inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
+          if inst.components.combat then
+            inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
+          end
         else
           if inst.components.combat then
             inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
