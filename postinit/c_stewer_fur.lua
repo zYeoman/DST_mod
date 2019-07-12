@@ -251,9 +251,11 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
               loot:AddComponent("named")
               loot.components.named:SetName()
             end
+            local extra_name = ""
             for key, value in pairs(loot.components.weapon.types) do
-              loot.components.named:SetName(desc[key] .. ' : +' .. value, key)
+              extra_name = extra_name .. desc[key] .. ' : +' .. value ..'\n'
             end
+            loot.components.named:SetName(extra_name, "stewer_fur")
             local damage = loot.components.weapon.damage/2
             for i = 2, self.inst.components.container.numslots do
               local item = self.inst.components.container:RemoveItemBySlot(i)
