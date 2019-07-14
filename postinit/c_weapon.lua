@@ -254,7 +254,7 @@ end
 c_onattack.disappear = function(self, attacker, target, v)
   -- 残破
   local modifier = v/(100+v)
-  if math.random() < modifier then
+  if math.random() < modifier and self.inst.prefab ~= "rtyboomerang" then
     attacker.components.inventory:DropItem(self.inst)
     self.inst:Remove()
     local fx = SpawnPrefab("small_puff")
