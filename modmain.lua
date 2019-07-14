@@ -718,6 +718,7 @@ if true then
           local gem = inst.components.inventory:FindItem(function(v) return v.prefab=="oldfish_part_gem" end)
           if gem then
             local count = gem.components.stackable:StackSize()
+            print(count.." gems")
             if inst.components.oldfish then
               while count > 3 and inst.oldfish_level:value()%250 ~= 0 do
                 local exp_plus = 100 * inst.oldfish_level:value() * math.exp(-1 * inst.oldfish_level:value() / 900)
@@ -803,7 +804,7 @@ AddPrefabPostInit("wall_wood", function(inst)inst:RemoveComponent("combat")end)
 -- 升级水晶叠加上限
 AddPrefabPostInit("oldfish_part_gem", function(inst)
   if inst.components.stackable then
-    inst.components.stackable.maxsize = 999
+    inst.components.stackable.maxsize = 250
   end
 end)
 if TUNING.BOSS_REGEN > 0 then
