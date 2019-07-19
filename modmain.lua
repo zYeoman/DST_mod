@@ -667,6 +667,8 @@ if true then
   -- 修复铥棒
   -- 火腿伤害降低问题 - 都修复了！通过修改setdamage函数
   modimport "postinit/c_weapon.lua"
+  -- 装备绑定存储
+  modimport "postinit/c_equippable.lua"
   -- 受伤降低成长伤害
   modimport "postinit/p_players.lua"
   -- 路灯
