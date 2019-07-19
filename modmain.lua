@@ -733,6 +733,26 @@ if true then
             end
           end
         end
+      elseif commands[1]=="绑定" or commands[1]=="bind" then
+        local function bind(equip)
+          if equip then
+            if equip.onlyownerid == nil then
+              equip.onlyownerid = userid
+              equip.components.named:SetName("所有者："..name, "bind")
+            else
+              equip.onlyownerid = nil
+              equip.components.named:SetName("", "bind")
+            end
+          end
+        end
+        -- 这里使用天涯百宝箱「天涯神杖」的权限设定。
+        showoldsay = false
+        if inst.components.inventory then
+          for idx,val in ipairs(EQUIPSLOTS) do
+            local equip = inst.components.inventory:GetEquippedItem(val)
+            bind(equip)
+          end
+        end
       end
     end
     if showoldsay then
