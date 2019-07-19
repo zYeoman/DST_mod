@@ -225,6 +225,12 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
     end
   end
   function Stewer_Fur:Harvest(harvester)
+    if self.inst.ownerlist ~= nil and self.inst.ownerlist.master ~= nil and self.inst.ownerlist.master ~= harvester.userid then
+      if harvester.components.talker then
+        harvester.components.talker:Say("这是别人的武器，我不能动")
+      end
+      return
+    end
     if self.done then
       if self.onharvest ~= nil then
         self.onharvest(self.inst)
