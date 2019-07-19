@@ -9,7 +9,7 @@
 AddComponentPostInit("named", function (Named)
   Named.namelist = {}
   local function DoSetName(self)
-    local name = self.nameformat ~= nil and string.format(self.nameformat, self.name) or self.name
+    local name = self.nameformat ~= nil and string.format(self.nameformat, self.name) or self.name or STRINGS.NAMES[string.upper(self.inst.prefab)] or ""
     for k, v in pairs(self.namelist) do
       name = name .. '\n' .. v
     end
