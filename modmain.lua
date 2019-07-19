@@ -750,7 +750,7 @@ if true then
         -- 这里使用天涯百宝箱「天涯神杖」的权限设定。
         showoldsay = false
         if inst.components.inventory then
-          for idx,val in ipairs(EQUIPSLOTS) do
+          for idx,val in pairs(EQUIPSLOTS) do
             local equip = inst.components.inventory:GetEquippedItem(val)
             bind(equip)
           end
