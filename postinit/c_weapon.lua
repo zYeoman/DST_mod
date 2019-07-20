@@ -280,7 +280,7 @@ AddComponentPostInit("weapon", function(Weapon)
     if key==nil then
       key='base'
     end
-    self.externaldamage:SetModifier(key, dmg)
+    self.externaldamage:SetModifier(key, math.max(dmg, 0))
     self.damage = self.externaldamage:Get()
   end
   function Weapon:OnSave()

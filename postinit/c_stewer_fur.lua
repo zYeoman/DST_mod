@@ -270,7 +270,7 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
                 item:Remove()
               end
             end
-            damage = damage - (loot.components.weapon.basedamage or 0)
+            damage = math.max(damage - (loot.components.weapon.basedamage or 0), 0)
             loot.components.weapon:SetDamage(math.min(damage, loot.components.weapon.damage or 99999), "stewer")
           end
         else
