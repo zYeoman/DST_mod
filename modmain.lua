@@ -738,6 +738,10 @@ if true then
       elseif commands[1]=="绑定" or commands[1]=="bind" then
         local function bind(equip)
           if equip then
+            if equip.components.named == nil then
+              equip:AddComponent("named")
+              equip.components.named:SetName("")
+            end
             if equip.onlyownerid == nil then
               equip.onlyownerid = userid
               equip.components.named:SetName("所有者："..name, "bind")
