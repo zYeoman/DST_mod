@@ -252,7 +252,7 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
           local weapon_types = {}
           for k = 1, self.inst.components.container.numslots do
             local item = self.inst.components.container:GetItemInSlot(k)
-            for k,v in pairs(item.components.weapon.types or {}) do
+            for k,v in pairs(item.components.weapon and item.components.weapon.types or {}) do
               weapon_types[k] = v + (weapon_types[k] or 0)
             end
           end

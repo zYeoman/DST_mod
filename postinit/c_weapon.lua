@@ -54,15 +54,18 @@ c_onattack.fire = function(self, attacker, target, v)
   -- 点燃，降低伤害和护甲
   local modifier = v/(3+v)
   target._onignite = math.max(target._onignite or 0, modifier)
-  target._tryremove = target:DoPeriodicTask(5, function()
-    if target.components.health and target.components.health.currenthealth <= 10 then
-      target.components.health:Kill()
-      attacker:PushEvent("killed", { victim = target })
-      if target._tryremove then
-        target._tryremove:Cancel()
+  if target._tryremove == nil then
+    target._tryremove = target:DoPeriodicTask(5, function()
+      if target.components.health and target.components.health.currenthealth <= 10 then
+        target.components.health:Kill()
+        attacker:PushEvent("killed", { victim = target })
+        if target._tryremove then
+          target._tryremove:Cancel()
+        end
+        target:Remove()
       end
-    end
-  end)
+    end)
+  end
   if math.random() < modifier and target.components.combat then
     local fx = SpawnPrefab("explode_small")
     fx.Transform:SetPosition(target.Transform:GetWorldPosition())
