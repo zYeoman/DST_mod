@@ -1,0 +1,605 @@
+diff --git a/scripts/components/near_autodelete.lua b/scripts/components/near_autodelete.lua
+index af67a3c..6df1404 100644
+--- a/scripts/components/near_autodelete.lua
++++ b/scripts/components/near_autodelete.lua
+@@ -2,98 +2,97 @@
+ local clear_period = 480
+ --附近要清理的物品列表(可自定义)
+ local function GetCleanItems()
+-    return {
+-        spiderden = true, -- 蜘蛛巢
+-        skeleton_player = true, -- 前辈(骨头)
+-        -- wall_wood,
+-        -- wall_stone,
+-        -- wall_ruins,
+-        -- wall_hay,
+-        -- wall_moonrock,
+-        -- fence_gate,                     -- 木门
+-        -- fence,                          -- 木栅栏
+-        rabbithouse = true, -- 兔人房
+-        tentacle = true, -- 触手
+-        lureplant = true, -- 肉球茎
+-        fossil_stalker = true, -- 奇怪的化石
+-    }
++	return {
++		spiderden = true,                  -- 蜘蛛巢
++		-- skeleton_player = true,            -- 前辈(骨头)
++		-- wall_wood,
++		-- wall_stone,
++		-- wall_ruins,
++		-- wall_hay,
++		-- wall_moonrock,
++		-- fence_gate,                     -- 木门
++		-- fence,                          -- 木栅栏
++		rabbithouse = true,                -- 兔人房
++		tentacle = true,                   -- 触手
++		lureplant = true,                  -- 肉球茎
++	}
+ end
+ local clear_tags = {
+-    "wall"
++	"wall"
+ }
+ local clear_item = GetCleanItems()
+ 
+ local NearAutoDelete = Class(function(self, inst)
+-    self.inst = inst
+-    -- 自动清理范围
+-    self.clear_near = 30
+-    self.CustomPrefab = ""
++	self.inst = inst
++	-- 自动清理范围
++	self.clear_near = 30
++	self.CustomPrefab = ""
+ end)
+ 
+ function NearAutoDelete:SetScope(scope)
+-    scope = tonumber(scope)
++	scope = tonumber(scope)
+     if scope ~= nil then
+         self.clear_near = scope
+     end
+ end
+ 
+ function NearAutoDelete:AddCustomPrefab(prefab)
+-    if type(prefab) == 'string' then
+-        clear_item[prefab] = true
++	if type(prefab) == 'string' then
++		clear_item[prefab] = true
+     end
+ end
+ 
+ function NearAutoDelete:SetCustomPrefab(prefabs)
+-    if type(prefabs) == 'string' then
+-        clear_item = GetCleanItems()
+-        self.CustomPrefab = prefabs
++	if type(prefabs) == 'string' then
++		clear_item = GetCleanItems()
++		self.CustomPrefab = prefabs
+         for prefab in string.gmatch(prefabs, "([%w_]+)") do
+-            clear_item[prefab] = true
++			clear_item[prefab] = true
+         end
+     end
+ end
+ 
+ local function HasCleanTag(inst)
+-    for _, tag in pairs(clear_tags) do
+-        if inst:HasTag(tag) then
+-            return true
+-        end
+-    end
++	for _, tag in pairs(clear_tags) do
++		if inst:HasTag(tag) then return true end
++	end
+ 
+-    return false
++	return false
+ end
+ 
+ local function AutoDeleteTask(inst, self)
+-    --print("delete handle!")
+-    local owner = nil
+-    local ents = {}
+-    local x = nil
+-    local y = nil
+-    local z = nil
++	--print("delete handle!")
++	local owner = nil
++	local ents = {}
++	local x = nil
++	local y = nil
++	local z = nil
+ 
+-    x, y, z = inst.Transform:GetWorldPosition()
++	x, y, z = inst.Transform:GetWorldPosition()
+ 
+-    if x ~= nil and y ~= nil and z ~= nil then
+-        --print("x="..x..", y="..y.."z="..z)
+-        ents = TheSim:FindEntities(x, y, z, self.clear_near)
++	if x ~= nil and y ~= nil and z ~= nil then
++		--print("x="..x..", y="..y.."z="..z)
++		ents = TheSim:FindEntities(x, y, z, self.clear_near)
+ 
+-        for _, obj in pairs(ents) do
+-            if obj.prefab ~= nil and (clear_item[obj.prefab] or HasCleanTag(obj)) then
+-                if obj.components.occupier then
+-                    owner = obj.components.occupier:GetOwner()
+-                end
++		for _,obj in pairs(ents) do
++		  obj.ownerlist=nil
++		  obj.saved_ownerlist=nil
++			if obj.prefab ~= nil and (clear_item[obj.prefab] or HasCleanTag(obj)) then
++				if obj.components.occupier then
++					owner = obj.components.occupier:GetOwner()
++				end
+ 
+-                if not owner and obj then
+-                    obj:Remove()
+-                end
+-            end
+-        end
+-    end
++				if not owner and obj then
++					obj:Remove()
++				end
++			end
++		end
++	end
+ end
+ 
+ ----执行附近指定物品的删除操作
+ function NearAutoDelete:start()
+-    self.inst:DoPeriodicTask(clear_period, AutoDeleteTask, 0, self)
++	self.inst:DoPeriodicTask(clear_period, AutoDeleteTask, 0, self)
+ end
+ 
+-return NearAutoDelete
+\ No newline at end of file
++return NearAutoDelete
+diff --git a/scripts/manager_clean.lua b/scripts/manager_clean.lua
+index 939359b..204dffb 100644
+--- a/scripts/manager_clean.lua
++++ b/scripts/manager_clean.lua
+@@ -23,111 +23,140 @@ if IsServer then
+     local function GetLevelPrefabs(level)
+         local levelPrefabs = {
+             ------------------------  生物  ------------------------
+-            hound = { max = 3 * level }, -- 狗
+-            firehound = { max = 1 * level }, -- 火狗
+-            spider_warrior = { max = 1 * level }, -- 蜘蛛战士
+-            spider = { max = 1 * level }, -- 蜘蛛
+-            spiderqueen = { max = 1 * level }, -- 蜘蛛女王
+-            flies = { max = 1 * level }, -- 苍蝇
+-            mosquito = { max = 1 * level }, -- 蚊子
+-            bee = { max = 1 * level }, -- 蜜蜂
+-            killerbee = { max = 1 * level }, -- 杀人蜂
+-            mole = { max = 10 * level }, -- 鼹鼠
+-            frog = { max = 2 * level }, -- 青蛙
+-            grassgekko = { max = 15 * level }, -- 草蜥蜴
+-            beefalo = { max = 12 * level, permission = true }, -- 牛
+-            lightninggoat = { max = 8 * level }, -- 羊
+-            deer = { max = 10 * level }, -- 鹿
+-            bunnyman = { max = 10 * level }, -- 兔人
+-            slurtle = { max = 5 * level }, -- 鼻涕虫
+-            snurtle = { max = 5 * level }, -- 蜗牛
++            hound           = { max = 30 * level },    -- 狗
++            firehound       = { max = 10 * level },    -- 火狗
++            spider_warrior  = { max = 10 * level },    -- 蜘蛛战士
++            spider          = { max = 20 * level },    -- 蜘蛛
++            spiderhat       = { max = 1 * level },    -- 蜘蛛女王
++            flies           = { max = 1 * level },    -- 苍蝇
++            mosquito        = { max = 1 * level },    -- 蚊子
++            bee             = { max = 1 * level },    -- 蜜蜂
++            killerbee       = { max = 1 * level },    -- 杀人蜂
++            rabbit          = { max = 3 * level },    -- 狗
++            butterfly       = { max = 3 * level },    -- 狗
++            mole            = { max = 10 * level },   -- 鼹鼠
++            molehill        = { max = 10 * level },   -- 鼹鼠
++            frog            = { max = 2 * level },    -- 青蛙
++            grassgekko      = { max = 15 * level },   -- 草蜥蜴
++            -- beefalo         = { max = 12 * level, permission = true },   -- 牛
++            -- lightninggoat   = { max = 8 * level },    -- 羊
++            -- deer            = { max = 10 * level },   -- 鹿
++            -- bunnyman        = { max = 10 * level },   -- 兔人
++            -- slurtle         = { max = 5 * level },    -- 鼻涕虫
++            -- snurtle         = { max = 5 * level },    -- 蜗牛
+             --leif            = { max = 2 * level },    -- 树精
+             --spat            = { max = 1 * level },    -- 钢羊
+             --warg            = { max = 1 * level },    -- 座狼
+-            mooseegg = { max = 1 * level }, -- 春鸭巢
++            --mooseegg        = { max = 1 * level },    -- 春鸭巢
+             --moose           = { max = 1 * level },    -- 春鸭
+             --bearger         = { max = 1 * level },    -- 熊
+             --deerclops       = { max = 1 * level },    -- 巨鹿
+ 
+             ------------------------  地面物体  ------------------------
+-            grass = { max = 150 * level, permission = true }, -- 草
+-            sapling = { max = 150 * level, permission = true }, -- 树苗
+-            berrybush = { max = 150 * level, permission = true }, -- 浆果丛
+-            berrybush2 = { max = 150 * level, permission = true }, -- 分叉浆果丛
+-            berrybush_juicy = { max = 150 * level, permission = true }, -- 多汁浆果丛
+-            flower = { max = 80 * level, permission = true }, -- 花
+-            acorn_sapling = { max = 10 * level, permission = true }, -- 白树苗
+-            pinecone_sapling = { max = 1 * level, permission = true }, -- 松树苗
+-            twiggy_nut_sapling = { max = 1 * level, permission = true }, -- 树枝树苗
+-            lumpy_sapling = { max = 10 * level }, -- 常青树苗
+-            deciduoustree = { max = 300 * level, permission = true }, -- 白树
+-            evergreen = { max = 500 * level, permission = true }, -- 松树
+-            evergreen_sparse = { max = 250 * level }, -- 常青树
+-            twiggytree = { max = 150 * level, permission = true }, -- 树枝树
+-            marsh_tree = { max = 100 * level }, -- 针刺树
+-            rock_petrified_tree = { max = 100 * level }, -- 石化树
+-            rock1 = { max = 70 * level }, -- 石头
+-            skeleton_player = { max = 5 * level }, -- 玩家尸体
+-            spiderden = { max = 5 * level, permission = true }, -- 蜘蛛巢
+-            burntground = { max = 5 * level }, -- 陨石痕跡
++            -- grass               = { max = 150 * level, permission = true },  -- 草
++            -- sapling             = { max = 150 * level, permission = true },  -- 树苗
++            -- berrybush           = { max = 150 * level, permission = true },  -- 浆果丛
++            -- berrybush2          = { max = 150 * level, permission = true },  -- 分叉浆果丛
++            -- berrybush_juicy     = { max = 150 * level, permission = true },  -- 多汁浆果丛
++            -- flower              = { max = 80 * level, permission = true },   -- 花
++            -- acorn_sapling       = { max = 10 * level, permission = true },   -- 白树苗
++            -- pinecone_sapling    = { max = 1 * level, permission = true },    -- 松树苗
++            -- twiggy_nut_sapling  = { max = 1 * level, permission = true },    -- 树枝树苗
++            -- lumpy_sapling       = { max = 10 * level },                      -- 常青树苗
++            -- deciduoustree       = { max = 300 * level, permission = true },  -- 白树
++            -- evergreen           = { max = 500 * level, permission = true },  -- 松树
++            -- evergreen_sparse    = { max = 250 * level },                     -- 常青树
++            -- twiggytree          = { max = 150 * level, permission = true },  -- 树枝树
++            -- marsh_tree          = { max = 100 * level },                     -- 针刺树
++            -- rock_petrified_tree = { max = 100 * level },                     -- 石化树
++            -- rock1               = { max = 70 * level },                      -- 石头
++            -- skeleton_player     = { max = 5 * level },                       -- 玩家尸体
++            -- spiderden           = { max = 5 * level, permission = true },    -- 蜘蛛巢
++            burntground         = { max = 5 * level },                       -- 陨石痕跡
+ 
+             ------------------------  可拾取物品  ------------------------
+-            seeds = { max = 1, stack = true, reclean = 3 }, -- 种子
+-            log = { max = 10 * level, stack = true, reclean = 3 }, -- 木头
+-            pinecone = { max = 10 * level, stack = true, reclean = 3 }, -- 松果
+-            cutgrass = { max = 10 * level, stack = true, reclean = 3 }, -- 草
+-            twigs = { max = 10 * level, stack = true, reclean = 3 }, -- 树枝
+-            rocks = { max = 10 * level, stack = true, reclean = 3 }, -- 石头
+-            nitre = { max = 10 * level, stack = true, reclean = 3 }, -- 硝石
+-            flint = { max = 10 * level, stack = true, reclean = 3 }, -- 燧石
+-            poop = { max = 7 * level, stack = true, reclean = 3 }, -- 屎
+-            guano = { max = 5 * level, stack = true, reclean = 3 }, -- 鸟屎
+-            manrabbit_tail = { max = 7 * level, stack = true, reclean = 3 }, -- 兔毛
+-            silk = { max = 7 * level, stack = true, reclean = 3 }, -- 蜘蛛丝
+-            spidergland = { max = 7 * level, stack = true, reclean = 3 }, -- 蜘蛛腺体
+-            stinger = { max = 5 * level, stack = true, reclean = 3 }, -- 蜂刺
+-            houndstooth = { max = 8 * level, stack = true, reclean = 3 }, -- 犬牙
+-            mosquitosack = { max = 8 * level, stack = true, reclean = 3 }, -- 蚊子血袋
+-            glommerfuel = { max = 8 * level, stack = true, reclean = 3 }, -- 咕嚕咪粘液
+-            slurtleslime = { max = 6 * level, stack = true, reclean = 3 }, -- 鼻涕虫粘液
+-            slurtle_shellpieces = { max = 10 * level, stack = true, reclean = 3 }, -- 鼻涕虫壳碎片
+-
+-            spoiled_food = { max = 10 * level }, -- 腐烂食物
+-            winter_food1 = { max = 2 * level, stack = true, reclean = 3 }, -- 姜饼人曲奇饼
+-            winter_food2 = { max = 2 * level, stack = true, reclean = 3 },
+-            winter_food3 = { max = 2 * level, stack = true, reclean = 3 },
+-            winter_food4 = { max = 2 * level, stack = true, reclean = 3 },
+-            winter_food5 = { max = 2 * level, stack = true, reclean = 3 },
+-
+-            winter_ornament_plain1 = { max = 2 * level, stack = true, reclean = 3 }, -- 节日小饰品
+-            winter_ornament_plain2 = { max = 2 * level, stack = true, reclean = 3 },
+-            winter_ornament_plain4 = { max = 2 * level, stack = true, reclean = 3 },
+-            winter_ornament_plain5 = { max = 2 * level, stack = true, reclean = 3 },
+-            winter_ornament_plain6 = { max = 2 * level, stack = true, reclean = 3 },
+-            winter_ornament_plain7 = { max = 2 * level, stack = true, reclean = 3 },
+-
+-            trinket_3 = { max = 2 * level, stack = true, reclean = 3 }, -- 戈尔迪乌姆之结
+-            trinket_4 = { max = 2 * level, stack = true, reclean = 3 },
+-            trinket_6 = { max = 2 * level, stack = true, reclean = 3 },
+-            trinket_8 = { max = 2 * level, stack = true, reclean = 3 },
+-
+-            blueprint = { max = 3 * level }, -- 蓝图
+-            axe = { max = 3 * level }, -- 斧子
+-            torch = { max = 3 * level }, -- 火炬
+-            pickaxe = { max = 3 * level }, -- 镐子
+-            hammer = { max = 3 * level }, -- 锤子
+-            shovel = { max = 3 * level }, -- 铲子
+-            razor = { max = 3 * level }, -- 剃刀
+-            pitchfork = { max = 3 * level }, -- 草叉
+-            bugnet = { max = 3 * level }, -- 捕虫网
+-            fishingrod = { max = 3 * level }, -- 魚竿
+-            spear = { max = 3 * level }, -- 矛
+-            earmuffshat = { max = 3 * level }, -- 兔耳罩
+-            winterhat = { max = 3 * level }, -- 冬帽
+-            heatrock = { max = 3 * level }, -- 热能石
+-            trap = { max = 30 * level }, -- 动物陷阱
+-            birdtrap = { max = 30 * level }, -- 鸟陷阱
+-            compass = { max = 3 * level }, -- 指南針
++            seeds           = { max = 1, stack = true},                -- 种子
++            goldnugget      = { max = 10 * level, stack = true},       -- 种子
++            nightmarefuel   = { max = 10 * level, stack = true},       -- 噩梦燃料
++            goldenbelt   = { max = 0 * level, stack = true},       -- 噩梦燃料
++            log             = { max = 10 * level, stack = true},       -- 木头
++            pinecone        = { max = 10 * level, stack = true},       -- 松果
++            cutgrass        = { max = 10 * level, stack = true},       -- 草
++            twigs           = { max = 10 * level, stack = true},       -- 树枝
++            rocks           = { max = 10 * level, stack = true},       -- 石头
++            nitre           = { max = 10 * level, stack = true},       -- 硝石
++            flint           = { max = 10 * level, stack = true},       -- 燧石
++            poop            = { max = 7  * level, stack = true},       -- 屎
++            guano           = { max = 5  * level, stack = true},       -- 鸟屎
++            manrabbit_tail  = { max = 7  * level, stack = true},       -- 兔毛
++            silk            = { max = 7  * level, stack = true},       -- 蜘蛛丝
++            spidergland     = { max = 7  * level, stack = true},       -- 蜘蛛腺体
++            stinger         = { max = 5  * level, stack = true},       -- 蜂刺
++            houndstooth     = { max = 8  * level, stack = true},       -- 犬牙
++            mosquitosack    = { max = 8  * level, stack = true},       -- 蚊子血袋
++            glommerfuel     = { max = 8  * level, stack = true},       -- 咕嚕咪粘液
++            slurtleslime    = { max = 6  * level, stack = true},       -- 鼻涕虫粘液
++            slurtle_shellpieces = { max = 10 * level, stack = true},   -- 鼻涕虫壳碎片
++
++          cookedmeat        = { max = 0 * level, stack = true },
++          meat_dried        = { max = 0 * level, stack = true },
++          pigskin           = { max = 0 * level, stack = true },
++          houndstooth       = { max = 0 * level, stack = true },
++          monstermeat       = { max = 0 * level, stack = true },
++          cookedmonstermeat = { max = 0 * level, stack = true },
++          monstermeat_dried = { max = 0 * level, stack = true },
++          smallmeat         = { max = 0 * level, stack = true },
++          cookedsmallmeat   = { max = 0 * level, stack = true },
++          smallmeat_dried   = { max = 0 * level, stack = true },
++          drumstick         = { max = 0 * level, stack = true },
++          drumstick_cooked  = { max = 0 * level, stack = true },
++          batwing           = { max = 0 * level, stack = true },
++          batwing_cooked    = { max = 0 * level, stack = true },
++          plantmeat         = { max = 0 * level, stack = true },
++          plantmeat_cooked  = { max = 0 * level, stack = true },
++          humanmeat         = { max = 0 * level, stack = true },
++          humanmeat_cooked  = { max = 0 * level, stack = true },
++          humanmeat_dried   = { max = 0 * level, stack = true },
++          quagmire_smallmeat= { max = 0 * level, stack = true },
++          quagmire_cookedsmallmeat        = { max = 0 * level, stack = true },
++
++            spoiled_food    = { max = 10 * level },                                  -- 腐烂食物
++            winter_food1    = { max = 0 * level, stack = true},        -- 姜饼人曲奇饼
++            winter_food2    = { max = 0 * level, stack = true},
++            winter_food3    = { max = 0 * level, stack = true},
++            winter_food4    = { max = 0 * level, stack = true},
++            winter_food5    = { max = 0 * level, stack = true},
++
++            winter_ornament_plain1 = { max = 0 * level, stack = true}, -- 节日小饰品
++            winter_ornament_plain2 = { max = 0 * level, stack = true},
++            winter_ornament_plain4 = { max = 0 * level, stack = true},
++            winter_ornament_plain5 = { max = 0 * level, stack = true},
++            winter_ornament_plain6 = { max = 0 * level, stack = true},
++            winter_ornament_plain7 = { max = 0 * level, stack = true},
++
++            trinket_3   = { max = 0 * level, stack = true},            -- 戈尔迪乌姆之结
++            trinket_4   = { max = 0 * level, stack = true},
++            trinket_6   = { max = 0 * level, stack = true},
++            trinket_8   = { max = 0 * level, stack = true},
++
++            blueprint   = { max = 0 * level },    -- 蓝图
++            sketch      = { max = 0 * level },    -- 蓝图
++            -- axe         = { max = 3 * level },    -- 斧子
++            -- torch       = { max = 3 * level },    -- 火炬
++            -- pickaxe     = { max = 3 * level },    -- 镐子
++            -- hammer      = { max = 3 * level },    -- 锤子
++            -- shovel      = { max = 3 * level },    -- 铲子
++            -- razor       = { max = 3 * level },    -- 剃刀
++            -- pitchfork   = { max = 3 * level },    -- 草叉
++            -- bugnet      = { max = 3 * level },    -- 捕虫网
++            -- fishingrod  = { max = 3 * level },    -- 魚竿
++            -- spear       = { max = 3 * level },    -- 矛
++            -- earmuffshat = { max = 3 * level },    -- 兔耳罩
++            -- winterhat   = { max = 3 * level },    -- 冬帽
++            -- heatrock    = { max = 3 * level },    -- 热能石
++            -- trap        = { max = 30 * level },   -- 动物陷阱
++            -- birdtrap    = { max = 30 * level },   -- 鸟陷阱
++            -- compass     = { max = 3 * level },    -- 指南針
+ 
+             ------------------------  地面玩家失去权限的建筑  ------------------------
+             -- firepit     	= { max = 0 * level, permission = true },  -- 石篝火
+@@ -173,6 +202,31 @@ if IsServer then
+             -- wall_stone  	= { max = 0 * level, permission = true },  -- 石墙
+             -- wall_ruins  	= { max = 0 * level, permission = true },  -- 铥墙
+             -- wall_moonrock 	= { max = 0 * level, permission = true },  -- 月墙
++            -- ---------------------  MOD物品 ----------------------------------------
++            crystal_abysmal_sea = { max = 0 },
++            evil_wings         = { max = 0  * level, reclean = 3 },
++            oldfish_icesword_fx         = { max = 0  * level, reclean = 3 },
++            courage_wings      = { max = 0  * level, reclean = 3 },
++            oldfish_ring       = { max = 0  * level, reclean = 3 },
++            venus_flowerglass  = { max = 0  * level, reclean = 3 },
++            venus_flowerhat    = { max = 0  * level, reclean = 3 },
++            ice_sad            = { max = 0  * level, reclean = 3 },
++            tunacan            = { max = 0  * level, reclean = 3 },
++            fish_raw           = { max = 0  * level, reclean = 3 },
++            not_bad            = { max = 0  * level, reclean = 3 },
++            oldfish_wind       = { max = 0  * level, reclean = 3 },
++            light_colour       = { max = 0  * level, reclean = 3 },
++            harm_aoe           = { max = 0  * level, reclean = 3 },
++            oldfish_moment     = { max = 0  * level, reclean = 3 },
++            oldfish_fire       = { max = 0  * level, reclean = 3 },
++            oldfish_children   = { max = 0  * level, reclean = 3 },
++            oldfish_shield     = { max = 0  * level, reclean = 3 },
++            oldfish_tentacle   = { max = 0  * level, reclean = 3 },
++            oldfish_children   = { max = 0  * level, reclean = 3 },
++            oldfish_white_gem  = { max = 0  * level, stack = true, reclean = 3},
++            oldfish_part_gem   = { max = 0  * level, stack = true, reclean = 3},
++            oldfish_green_gem  = { max = 0  * level, stack = true, reclean = 3},
++            neidan             = { max = 0  * level, stack = true, reclean = 3},
+         }
+ 
+         return levelPrefabs
+@@ -201,17 +255,17 @@ if IsServer then
+     end
+ 
+     local function RemoveItem(inst)
+-        --Modified: it doesn't clean the inst which has 100% absorption
++      if inst.onlyownerid ~= nil then
++        return
++      end
++      if inst.components.container then
++        inst.components.container:DropEverything()
++      end
+         if inst.components.health ~= nil and not inst:HasTag("wall") then
+-            -- justifying the absorption must put inner, otherwise the inst will be removed outside
+-            if inst.components.health.absorb ~= 1 then
+-                if inst.components.lootdropper ~= nil then
+-                    inst.components.lootdropper.DropLoot = function(pt)
+-                    end
+-                end
+-                -- this can play death animation
+-                inst.components.health:SetPercent(0)
++            if inst.components.lootdropper ~= nil then
++                inst.components.lootdropper.DropLoot = function(pt) end
+             end
++            inst.components.health:SetPercent(0)
+         else
+             inst:Remove()
+         end
+@@ -225,22 +279,17 @@ if IsServer then
+         local countPer = {}
+         local thisPrefab = nil
+ 
+-        for _, v in pairs(_G.Ents) do
++        for _,v in pairs(_G.Ents) do
+             if v.prefab ~= nil then
+                 repeat
+                     thisPrefab = v.prefab
++                    if string.find(thisPrefab, "_blueprint")then
++                      this_max_prefabs[thisPrefab] = this_max_prefabs["blueprint"]
++                    end
++                    if string.find(thisPrefab, "_sketch")then
++                      this_max_prefabs[thisPrefab] = this_max_prefabs["sketch"]
++                    end
+                     if this_max_prefabs[thisPrefab] ~= nil then
+-
+-                        if v.persists and v.ownerlist and v:IsValid() then
+-
+-                            -- Modified:去掉患病植物的权限
+-                            if v.components.diseaseable ~= nil and (v.components.diseaseable:IsDiseased() or v.components.diseaseable:IsBecomingDiseased()) then
+-
+-                                SetItemPermission(v, nil)
+-                            end
+-
+-                        end
+-
+                         if v.reclean == nil then
+                             v.reclean = 1
+                         else
+@@ -250,10 +299,13 @@ if IsServer then
+                         local bNotClean = true
+                         if this_max_prefabs[thisPrefab].reclean ~= nil then
+                             bNotClean = this_max_prefabs[thisPrefab].reclean > v.reclean
++                        else
++                            bNotClean = false
+                         end
+ 
+-                        if this_max_prefabs[thisPrefab].stack and bNotClean and v.components and v.components.stackable and v.components.stackable:StackSize() > 1 then
+-                            break
++                        if this_max_prefabs[thisPrefab].stack and bNotClean and v.components and v.components.stackable and v.components.stackable:StackSize() > 1 then break end
++                        if bNotClean then
++                          break
+                         end
+ 
+                         if this_max_prefabs[thisPrefab].permission then
+@@ -266,14 +318,10 @@ if IsServer then
+                             }
+                             break
+                         end
+-                    else
+-                        break
+-                    end
++                    else break end
+ 
+                     -- 不可见物品(在包裹内等)
+-                    if v.inlimbo then
+-                        break
+-                    end
++                    if v.inlimbo then break end
+ 
+                     -- 在包裹内物品
+                     --if IsInInventory(v) then break end
+@@ -285,9 +333,7 @@ if IsServer then
+                         countList[thisPrefab].currentcount = countList[thisPrefab].currentcount + 1
+                     end
+ 
+-                    if this_max_prefabs[thisPrefab].max >= countList[thisPrefab].count then
+-                        break
+-                    end
++                    if this_max_prefabs[thisPrefab].max >= countList[thisPrefab].count then break end
+ 
+                     if (v.components.hunger ~= nil and v.components.hunger.current > 0) or (v.components.domesticatable ~= nil and v.components.domesticatable.domestication > 0) then
+                         break
+@@ -300,25 +346,21 @@ if IsServer then
+         end
+ 
+         -- 需要判断权限的物体单独清理
+-        for k, v in pairs(countPer) do
++        for k,v in pairs(countPer) do
+             if #v > this_max_prefabs[k].max then
+-                table.sort(v, function(a, b)
+-                    return a[2] < b[2]
+-                end)
++                table.sort(v, function(a,b) return a[2] < b[2] end)
+                 countList[k] = { name = v[1][1].name, count = #v, currentcount = #v }
+                 repeat
+                     local itemObj = table.remove(v, 1)
+                     if itemObj[2] == 0 then
+                         RemoveItem(itemObj[1])
+                         countList[k].currentcount = #v
+-                    else
+-                        break
+-                    end
++                    else break end
+                 until this_max_prefabs[k].max >= #v
+             end
+         end
+ 
+-        for k, v in pairs(this_max_prefabs) do
++        for k,v in pairs(this_max_prefabs) do
+             if countList[k] ~= nil and countList[k].count > v.max then
+                 print(string.format("[河蟹防熊锁]清理   %s(%s)   %d   %d   %d", countList[k].name, k, countList[k].count, countList[k].count - countList[k].currentcount, countList[k].currentcount))
+             end
+@@ -333,7 +375,6 @@ if IsServer then
+     if clean_level ~= -1 then
+         AddPrefabPostInit("world", function(inst)
+             if clean_period > 0 then
+-                --此处根本没有把modinfo中的clean_level参数传入，用的参数为15
+                 inst:DoPeriodicTask(clean_period * TUNING.TOTAL_DAY_TIME, CleanDelay, clean_period * TUNING.TOTAL_DAY_TIME, 15)
+             end
+         end)
+@@ -346,9 +387,7 @@ if IsServer then
+         print("[河蟹防熊锁]手动清理", "hx_clean", time, level)
+         if time ~= nil and time > 0 then
+             CleanDelay(_G.TheWorld, time, level)
+-        else
+-            Clean(_G.TheWorld, level)
+-        end
++        else Clean(_G.TheWorld, level) end
+     end
+ 
+     _G.hx_clean_lv = function(level)
+@@ -371,7 +410,7 @@ if IsServer then
+         local countList = {}
+         local thisPrefab = nil
+ 
+-        for _, v in pairs(_G.Ents) do
++        for _,v in pairs(_G.Ents) do
+             if v.prefab ~= nil then
+                 thisPrefab = v.prefab
+                 if max_prefabs[thisPrefab] ~= nil and not v.inlimbo then
+@@ -384,10 +423,10 @@ if IsServer then
+             end
+         end
+ 
+-        for k, v in pairs(max_prefabs) do
++        for k,v in pairs(max_prefabs) do
+             if countList[k] ~= nil then
+-                print("[河蟹防熊锁]", countList[k].name .. "(" .. k .. ")", countList[k].count)
++                print("[河蟹防熊锁]", countList[k].name .."(".. k ..")", countList[k].count)
+             end
+         end
+     end
+-end
+\ No newline at end of file
++end
