@@ -667,6 +667,8 @@ if true then
   -- 修复铥棒
   -- 火腿伤害降低问题 - 都修复了！通过修改setdamage函数
   modimport "postinit/c_weapon.lua"
+  -- 修复SetLastTarget问题
+  modimport "postinit/c_combat.lua"
   -- 装备绑定存储
   modimport "postinit/c_equippable.lua"
   -- 受伤降低成长伤害
@@ -820,19 +822,6 @@ AddPrefabPostInit("slurtlehole", function (inst)
   end
 end)
 
-AddPrefabPostInit("ruins_rubble_table", function(inst)inst:RemoveComponent("combat")end)
-AddPrefabPostInit("ruins_rubble_chair", function(inst)inst:RemoveComponent("combat")end)
-AddPrefabPostInit("ruins_rubble_vase", function(inst)inst:RemoveComponent("combat")end)
-AddPrefabPostInit("ruins_table", function(inst)inst:RemoveComponent("combat")end)
-AddPrefabPostInit("ruins_chair", function(inst)inst:RemoveComponent("combat")end)
-AddPrefabPostInit("ruins_vase", function(inst)inst:RemoveComponent("combat")end)
-AddPrefabPostInit("wall_wood", function(inst)inst:RemoveComponent("combat")end)
--- 升级水晶叠加上限
-AddPrefabPostInit("oldfish_part_gem", function(inst)
-  if inst.components.stackable then
-    inst.components.stackable.maxsize = 250
-  end
-end)
 if TUNING.BOSS_REGEN > 0 then
 -- BOSS加强
 AddPrefabPostInit("wiona_catapult", function(inst)
