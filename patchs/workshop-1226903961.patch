@@ -1,0 +1,247 @@
+diff --git a/scripts/components/allachivcoin.lua b/scripts/components/allachivcoin.lua
+index 18ad1a9..d34c1e9 100644
+--- a/scripts/components/allachivcoin.lua
++++ b/scripts/components/allachivcoin.lua
+@@ -324,7 +324,8 @@ function allachivcoin:OnLoad(data)
+     self.level = data.level or false
+     self.fastpicker = data.fastpicker or false
+     self.soulhopcopy = data.soulhopcopy or false
+-
++    self.inst.components.combat.externaldamagemultipliers:SetModifier('achiv', 1+allachiv_coindata["damageup"] * self.damageupamount)
++    self.inst.components.combat.externaldamagetakenmultipliers:SetModifier('achiv', 1-allachiv_coindata["absorbup"]*self.absorbupamount)
+ 
+ end
+ 
+@@ -866,10 +867,11 @@ end
+ 
+ --提升攻击获取
+ function allachivcoin:damageupcoin(inst)
+-    if self.coinamount >= allachiv_coinuse["damageup"] and self.damageupamount <= 4 then
++    if self.coinamount >= allachiv_coinuse["damageup"] and self.damageupamount <= 8 then
+         self.damageupamount = self.damageupamount + 1
+-        inst.components.combat.damagemultiplier = inst.components.combat.damagemultiplier + allachiv_coindata["damageup"]
+-        self.damagemul = inst.components.combat.damagemultiplier
++        inst.components.combat.externaldamagemultipliers:SetModifier('achiv', 1+allachiv_coindata["damageup"] * self.damageupamount)
++        -- inst.components.combat.damagemultiplier = inst.components.combat.damagemultiplier + allachiv_coindata["damageup"]
++        -- self.damagemul = inst.components.combat.damagemultiplier
+         self:coinDoDelta(-allachiv_coinuse["damageup"])
+         self:ongetcoin(inst)
+     end
+@@ -877,14 +879,12 @@ end
+ 
+ --提升防御获取
+ function allachivcoin:absorbupcoin(inst)
+-
+-
+-
+     if self.coinamount >= allachiv_coinuse["absorbup"] and self.absorbupamount <= 4 then
+         self.absorbupamount = self.absorbupamount + 1
+-        inst.components.health.absorb = inst.components.health.absorb + allachiv_coindata["absorbup"]
+-        if inst.components.health.absorb >= .95 then inst.components.health.absorb = .95 end
+-        self.absorb = inst.components.health.absorb
++        inst.components.combat.externaldamagetakenmultipliers:SetModifier('achiv', 1-allachiv_coindata["absorbup"]*self.absorbupamount)
++        -- inst.components.health.absorb = inst.components.health.absorb + allachiv_coindata["absorbup"]
++        -- if inst.components.health.absorb >= .95 then inst.components.health.absorb = .95 end
++        -- self.absorb = inst.components.health.absorb
+         self:coinDoDelta(-allachiv_coinuse["absorbup"])
+         self:ongetcoin(inst)
+     end
+@@ -915,7 +915,7 @@ function allachivcoin:critfn(inst)
+             if target.SoundEmitter ~= nil then
+                 target.SoundEmitter:PlaySound("dontstarve/common/whip_large")
+             end
+-            if target.components.lootdropper and target.components.health:IsDead() then
++            if target.components.lootdropper and target.components.health and target.components.health:IsDead() then
+                 if target.components.freezable or target:HasTag("monster") then
+                     target.components.lootdropper:DropLoot()
+                 end
+@@ -1007,11 +1007,16 @@ end
+ --双倍掉落效果
+ function allachivcoin:doubledropfn(inst)
+     inst:ListenForEvent("killed", function(inst, data)
+-        if self.doubledrop and data.victim.components.lootdropper then
++      local target = data.victim
++        if self.doubledrop
++          and target.components.lootdropper
++          and target.GUID ~= inst.alchive_lastkilled
++          then
+             if data.victim.components.freezable or data.victim:HasTag("monster") then
+                 if data.victim ~= nil and  data.victim.nodoubletask == nil and data.victim:IsValid()  then
+                     data.victim.nodoubletask = data.victim:DoTaskInTime(5, OnRestore)
+                     data.victim.components.lootdropper:DropLoot()
++                    inst.alchive_lastkilled = target.GUID
+                 end
+             end
+         end
+@@ -1150,29 +1155,29 @@ end
+ --砍树圣手效果
+ function allachivcoin:chopmasterfn(inst)
+     inst:ListenForEvent("working", function(inst, data)
+-        if self.chopmaster and data.target and data.target.components.workable and data.target:HasTag("tree") then
++        if self.chopmaster and data.target and data.target.components.workable and data.target:HasTag("tree") then
+             local workable = data.target.components.workable
+-            if data.target.components.workable.action == ACTIONS.CHOP then
+-            	local equipitem = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
+-                --if equipitem ~= nil and (equipitem.prefab == "axe" or equipitem.prefab == "goldenaxe" or equipitem.prefab == "moonglassaxe" or equipitem.prefab == "multitool_axe_pickaxe"    ) then
+-            	if equipitem ~= nil  and equipitem.components.finiteuses ~= nil then
+-            
+-                	local itemuses =   equipitem.components.finiteuses:GetUses() 
+-                	if  itemuses > 0 then
+-                		if workable.workleft >= 1 then
+-                			--print("数"..workable.workleft)
+-                			if equipitem.components.finiteuses.consumption[ACTIONS.CHOP] ~= nil then
+-                				local uses2 = equipitem.components.finiteuses.consumption[ACTIONS.CHOP]
+-                				equipitem.components.finiteuses:Use(workable.workleft*uses2)
+-                			else 
+-                				equipitem.components.finiteuses:Use(workable.workleft)
+-                			end
+-						end
+-                	end
+-            	end
+-            end
+-            workable.workleft = 0
+-
++            if data.target.components.workable.action == ACTIONS.CHOP then
++            	local equipitem = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.HANDS)
++                --if equipitem ~= nil and (equipitem.prefab == "axe" or equipitem.prefab == "goldenaxe" or equipitem.prefab == "moonglassaxe" or equipitem.prefab == "multitool_axe_pickaxe"    ) then
++            	if equipitem ~= nil  and equipitem.components.finiteuses ~= nil then
++            
++                	local itemuses =   equipitem.components.finiteuses:GetUses() 
++                	if  itemuses > 0 then
++                		if workable.workleft >= 1 then
++                			--print("数"..workable.workleft)
++                			if equipitem.components.finiteuses.consumption[ACTIONS.CHOP] ~= nil then
++                				local uses2 = equipitem.components.finiteuses.consumption[ACTIONS.CHOP]
++                				equipitem.components.finiteuses:Use(workable.workleft*uses2)
++                			else 
++                				equipitem.components.finiteuses:Use(workable.workleft)
++                			end
++						end
++                	end
++            	end
++            end
++                    workable.workleft = 0
++
+         end
+     end)
+ end
+@@ -1635,7 +1640,7 @@ function allachivcoin:removecoin(inst)
+     if self.healthupamount    > 0 then returncoin = returncoin + allachiv_coinuse["healthup"]    end
+     if self.sanityregenamount > 0 then returncoin = returncoin + allachiv_coinuse["sanityregen"] end
+ 
+-    self.coinamount = self.coinamount + math.ceil(returncoin*3/4)
++    self.coinamount = self.coinamount + math.ceil(returncoin*0.9)
+     self:resetbuff(inst)
+ 
+     self.hungerupamount = 0
+@@ -1705,15 +1710,13 @@ function allachivcoin:resetbuff(inst)
+ 
+     inst.components.hunger.hungerrate = inst.components.hunger.hungerrate + self.hungerrateupamount*allachiv_coindata["hungerrateup"]
+     self.hungerrate = inst.components.hunger.hungerrate
+-    
++
+     inst.components.locomotor.externalspeedmultiplier = inst.components.locomotor.externalspeedmultiplier - allachiv_coindata["speedup"]*self.speedupamount
+     self.speedcheck = inst.components.locomotor.externalspeedmultiplier
+-    
+-    inst.components.health.absorb = inst.components.health.absorb - allachiv_coindata["absorbup"]*self.absorbupamount
+-    self.absorb = inst.components.health.absorb
+-    
+-    inst.components.combat.damagemultiplier = inst.components.combat.damagemultiplier - allachiv_coindata["damageup"]*self.damageupamount
+-    self.damagemul = inst.components.combat.damagemultiplier
++
++    inst.components.combat.externaldamagetakenmultipliers:RemoveModifier('achiv')
++
++    inst.components.combat.externaldamagemultipliers:RemoveModifier('achiv')
+ 
+     if self.fireflylight then inst._fireflylight:Remove() end
+ 
+@@ -1836,31 +1839,31 @@ end
+ --检测非由本mod改变的数据并实时更新，同时负责载入时将奖励生效
+ function allachivcoin:onupdate(inst)
+     --饥饿上限
+-    if self.hungermax ~= inst.components.hunger.max then
+-        local hunger_percent = inst.components.hunger:GetPercent()
+-        inst.components.hunger:SetMax(inst.components.hunger.max + allachiv_coindata["hungerup"]*self.hungerupamount)
+-        inst.components.hunger:SetPercent(hunger_percent)
+-        self.hungermax = inst.components.hunger.max
+-    end
+-    --脑残上限
+-    if self.sanitymax ~= inst.components.sanity.max then
+-        local sanity_percent = inst.components.sanity:GetPercent()
+-        inst.components.sanity:SetMax(inst.components.sanity.max + allachiv_coindata["sanityup"]*self.sanityupamount)
+-        inst.components.sanity:SetPercent(sanity_percent)
+-        self.sanitymax = inst.components.sanity.max
+-    end
+-    --血量上限
+-    if self.healthmax ~= inst.components.health.maxhealth then
+-           if self.healthupamount == 1  and   inst.components.inventory then  
+-            local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.BODY)
+-            if item ~= nil and item.prefab == "armorruins" then
+-                local health_percent = inst.components.health:GetPercent()
+-                inst.components.health:SetMaxHealth(inst.components.health.maxhealth + 100)
+-                inst.components.health:SetPercent(health_percent)
+-                self.healthmax = inst.components.health.maxhealth
+-            end
+-    end
+-    end
++    --if self.hungermax ~= inst.components.hunger.max then
++    --    local hunger_percent = inst.components.hunger:GetPercent()
++    --    inst.components.hunger:SetMax(inst.components.hunger.max + allachiv_coindata["hungerup"]*self.hungerupamount)
++    --    inst.components.hunger:SetPercent(hunger_percent)
++    --    self.hungermax = inst.components.hunger.max
++    --end
++    ----脑残上限
++    --if self.sanitymax ~= inst.components.sanity.max then
++    --    local sanity_percent = inst.components.sanity:GetPercent()
++    --    inst.components.sanity:SetMax(inst.components.sanity.max + allachiv_coindata["sanityup"]*self.sanityupamount)
++    --    inst.components.sanity:SetPercent(sanity_percent)
++    --    self.sanitymax = inst.components.sanity.max
++    --end
++    ----血量上限
++    --if self.healthmax ~= inst.components.health.maxhealth then
++    --       if self.healthupamount == 1  and   inst.components.inventory then
++    --        local item = inst.components.inventory:GetEquippedItem(EQUIPSLOTS.BODY)
++    --        if item ~= nil and item.prefab == "armorruins" then
++    --            local health_percent = inst.components.health:GetPercent()
++    --            inst.components.health:SetMaxHealth(inst.components.health.maxhealth + 100)
++    --            inst.components.health:SetPercent(health_percent)
++    --            self.healthmax = inst.components.health.maxhealth
++    --        end
++    --end
++    --end
+     --延缓饥饿
+     if self.hungerrate ~= inst.components.hunger.hungerrate then
+         inst.components.hunger.hungerrate = inst.components.hunger.hungerrate - allachiv_coindata["hungerrateup"]*self.hungerrateupamount
+@@ -1875,16 +1878,16 @@ function allachivcoin:onupdate(inst)
+         self.speedcheck = inst.components.locomotor.externalspeedmultiplier
+     end
+     --防御力
+-    if self.absorb ~= inst.components.health.absorb then
+-        inst.components.health.absorb = inst.components.health.absorb + allachiv_coindata["absorbup"]*self.absorbupamount
+-        if inst.components.health.absorb >= .95 then inst.components.health.absorb = .95 end
+-        self.absorb = inst.components.health.absorb
+-    end
++    -- if self.absorb ~= inst.components.health.absorb then
++    --     inst.components.health.absorb = inst.components.health.absorb + allachiv_coindata["absorbup"]*self.absorbupamount
++    --     if inst.components.health.absorb >= .95 then inst.components.health.absorb = .95 end
++    --     self.absorb = inst.components.health.absorb
++    -- end
+     --攻击力
+-    if self.damagemul ~= inst.components.combat.damagemultiplier then
+-        inst.components.combat.damagemultiplier = inst.components.combat.damagemultiplier + allachiv_coindata["damageup"]*self.damageupamount
+-        self.damagemul = inst.components.combat.damagemultiplier
+-    end
++    -- if self.damagemul ~= inst.components.combat.damagemultiplier then
++    --     inst.components.combat.damagemultiplier = inst.components.combat.damagemultiplier + allachiv_coindata["damageup"]*self.damageupamount
++    --     self.damagemul = inst.components.combat.damagemultiplier
++    -- end
+     --防水
+     if self.maxMoistureRate ~= inst.components.moisture.maxMoistureRate then
+         if self.nomoist then
+@@ -1893,4 +1896,4 @@ function allachivcoin:onupdate(inst)
+     end
+ end
+ 
+-return allachivcoin
+\ No newline at end of file
++return allachivcoin
