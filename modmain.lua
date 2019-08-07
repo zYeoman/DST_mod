@@ -793,8 +793,8 @@ AddPrefabPostInit("world", function(inst)
   local function gongzi()
     for k,v in ipairs(_G.AllPlayers) do
       if v.components.seplayerstatus then
-        local cycles1 = TheWorld.state.cycles*10
-        local cycles2 = v.components.age:GetAgeInDays()*100
+        local cycles1 = TheWorld.state.cycles
+        local cycles2 = v.components.age:GetAgeInDays()*20
         v.components.seplayerstatus:DoDeltaCoin(math.max(cycles1, cycles2))
       end
     end
@@ -896,7 +896,7 @@ for k, v in pairs(CreaturesOri) do
     end
 
     local stronger = _G.get_stronger[v] or 1
-    local absorb = stronger/(20+stronger)
+    local absorb = 0.9*stronger/(20+stronger)
 
     if GLOBAL.TheShard:GetShardId() ~= "1" then
       inst:DoTaskInTime(0.1, function()
@@ -908,7 +908,7 @@ for k, v in pairs(CreaturesOri) do
             local regen = TUNING.BOSS_REGEN/100*inst.components.health.maxhealth
             inst.components.health:StartRegen(regen, 1)
           end
-          absorb = stronger/(10+stronger)
+          absorb = 0.95*stronger/(10+stronger)
           if inst.components.combat then
             inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
           end
