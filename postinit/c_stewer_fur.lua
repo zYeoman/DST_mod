@@ -93,6 +93,14 @@ local function cookcook(inst)
     return "bloodthirsty_pill" , c --嗜血
   elseif inst:Has("gunpowder", 1) and inst:Has("stinger", 1) and inst:Has("durian", 1) and inst:Has("nightmarefuel", 1) then
     return "condensed_pill" , c --凝神
+    elseif inst:Has("garlic", 2) and inst:Has("rocks", 1) and inst:Has('boneshard',1) then
+        return "armor_pill", 60--壮骨
+		
+    elseif inst:Has("papyrus", 2) and inst:Has("featherpencil", 1) and inst:Has('petals',1) then
+        return "laozi_sp", 10--
+		
+    elseif inst:Has("armor_bramble", 2) and inst:Has("cactus_flower", 2) then
+        return "thorns_pill", c --荆棘甲
   elseif inst:Has("redgem", 1) and inst:Has("goose_feather", 3) then
     return "mk_hualing" , 60 --花翎
 
