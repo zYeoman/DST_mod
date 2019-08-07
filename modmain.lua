@@ -677,6 +677,8 @@ if true then
   modimport "postinit/p_fyjiedeng.lua"
   -- 命名扩展
   modimport "postinit/c_named.lua"
+  -- 掉落消失
+  modimport "postinit/c_lootdropper.lua"
   -- 取消物理碰撞
   -- AddPrefabPostInit("blowdart_sleep",function(inst) inst.Physics:ClearCollisionMask() end)
   -- AddPrefabPostInit("blowdart_fire",function(inst) inst.Physics:ClearCollisionMask() end)
