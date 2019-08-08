@@ -677,6 +677,8 @@ if true then
   modimport "postinit/p_fyjiedeng.lua"
   -- 命名扩展
   modimport "postinit/c_named.lua"
+  -- oldfish 扩展 - 称号、升级等
+  modimport "postinit/c_oldfish.lua"
   -- 掉落消失
   modimport "postinit/c_lootdropper.lua"
   -- 取消物理碰撞
@@ -714,7 +716,7 @@ if true then
           if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100000 then
             inst.components.seplayerstatus:DoDeltaCoin(-100000)
             if inst.components.oldfish then
-              inst.components.oldfish.name = chenghao
+              inst.components.oldfish:SetName(chenghao, "custom")
             end
           end
         end

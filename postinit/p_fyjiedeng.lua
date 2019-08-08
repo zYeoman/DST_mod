@@ -13,9 +13,6 @@ local function nojiahu(inst)
   if inst.components.talker then
     inst.components.talker:Say("灯的力量消失了")
   end
-  if inst.prefix ~= nil and inst.oldfish_name ~= nil then
-    inst.prefix._labei:SetText(inst.oldfish_name:value())
-  end
   if inst._jiahu_flakes_ice then
     inst._jiahu_flakes_ice:Remove()
   end
@@ -24,7 +21,7 @@ local function nojiahu(inst)
   end
   inst.components.health:SetMinHealth(0)
   if inst.components.oldfish then
-    inst.components.oldfish.name = inst._jiahu_oldname or TUNING.OLDFISH_NAME[math.floor(inst.components.oldfish.level / 100)].name
+    inst.components.oldfish:SetName("", "extra")
   end
   if inst:HasTag("notarget") then
     inst:RemoveTag("notarget")
@@ -41,8 +38,7 @@ local function jiahu(inst)
   end
   inst.components.health:SetMinHealth(1)
   if inst.components.oldfish then
-    inst._jiahu_oldname = inst.oldfish_name:value()
-    inst.components.oldfish.name = "闪耀的加护"
+    inst.components.oldfish:SetName("闪耀的加护", "extra")
   end
   inst._jiahu_flakes_ice = SpawnPrefab("deer_ice_flakes")
   inst._jiahu_flakes_ice.entity:SetParent(inst.entity)
