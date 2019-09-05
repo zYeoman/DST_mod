@@ -722,24 +722,15 @@ if true then
         end
       elseif commands[1]=="升级" or commands[1]=="levelup" then
         showoldsay = false
-        if inst.components.inventory then
-          local gem = inst.components.inventory:FindItem(function(v) return v.prefab=="oldfish_part_gem" end)
-          if gem then
-            local count = gem.components.stackable:StackSize()
-            print(count.." gems")
-            if inst.components.oldfish then
-              while count > 3 and inst.oldfish_level:value()%250 ~= 0 do
-                local exp_plus = 100 * inst.oldfish_level:value() * math.exp(-1 * inst.oldfish_level:value() / 900)
-                inst.components.oldfish:DoDelta_exp(exp_plus)
-                count = count-4
-              end
-            end
-            if count == 0 then
-              gem:Remove()
-            else
-              gem.components.stackable:SetStackSize(count)
-            end
+        if inst.components.inventory and inst.components.oldfish then
+          local hasPart, count = inst.components.inventory:Has("oldfish_part_gem", 4)
+          local totalcount = count
+          while inst.oldfish_level:value()%250~=0 and hasPart and count > 4 do
+            local exp_plus = 100 * inst.oldfish_level:value() * math.exp(-1 * inst.oldfish_level:value() / 900)
+            inst.components.oldfish:DoDelta_exp(exp_plus)
+            count = count - 4
           end
+          inst.components.inventory:ConsumeByName("oldfish_part_gem", totalcount-count)
         end
       elseif commands[1]=="绑定" or commands[1]=="bind" then
         local function bind(equip)
