@@ -732,6 +732,15 @@ if true then
           end
           inst.components.inventory:ConsumeByName("oldfish_part_gem", totalcount-count)
         end
+      elseif commands[1]=="翅膀" or commands[1]=="wings" then
+        if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100000 then
+          inst.components.seplayerstatus:DoDeltaCoin(-100000)
+          local wings = {"cbdz0","cbdz1","cbdz2","cbdz3","cbdz4","cbdz5","cbdz6","cbdz7","cbdz8"}
+          local wing = SpawnPrefab(wings[math.random(#wings)])
+          if inst.components.inventory and wing then
+            inst.components.inventory:Equip(wing)
+          end
+        end
       elseif commands[1]=="绑定" or commands[1]=="bind" then
         local function bind(equip)
           if equip then
