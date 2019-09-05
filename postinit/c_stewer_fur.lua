@@ -50,6 +50,9 @@ local function randomchoice(t)
 end
 
 local function addtype(inst, tps, num)
+  if inst.components.weapon == nil then
+    return
+  end
   inst.components.weapon.types = {}
   local key, value, size = randomchoice(tps)
   if size < num then
@@ -269,7 +272,7 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
             weapon_types[key] = 1
           end
           loot = self.inst.components.container:RemoveItemBySlot(1)
-          if loot then
+          if loot and loot.components.weapon then
             addtype(loot, weapon_types, math.random(3,5))
             if loot.components.named == nil then
               loot:AddComponent("named")

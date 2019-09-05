@@ -43,7 +43,7 @@ AddComponentPostInit("lootdropper", function(LootDropper)
           loot:Remove()
         end)
         loot._disappear_anim = loot:DoTaskInTime(20, function()
-          for j=1,14,2 do
+          for j=1,30,2 do
             for i=10,3,-1 do
               loot:DoTaskInTime(j-i/10, function ()
                 loot.AnimState:SetMultColour(i/10,i/10,i/10,i/10)
@@ -54,7 +54,7 @@ AddComponentPostInit("lootdropper", function(LootDropper)
             end
           end
           for i=10,3,-1 do
-            loot:DoTaskInTime(15-i/10, function ()
+            loot:DoTaskInTime(31-i/10, function ()
               loot.AnimState:SetMultColour(i/10,i/10,i/10,i/10)
             end)
           end

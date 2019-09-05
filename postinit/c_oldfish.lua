@@ -31,7 +31,9 @@ AddComponentPostInit("oldfish", function (oldfish)
       self.namelist[key] = name
     end
     if self.namelist['custom'] == nil then
-      self.namelist['custom'] = TUNING.OLDFISH_NAME[math.floor(self.level / 100)].name
+      if TUNING.OLDFISH_NAME[math.floor(self.level / 100)] then
+        self.namelist['custom'] = TUNING.OLDFISH_NAME[math.floor(self.level / 100)].name
+      end
     end
     DoSetName(self)
   end
