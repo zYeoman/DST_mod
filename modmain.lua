@@ -677,6 +677,8 @@ if true then
   modimport "postinit/p_fyjiedeng.lua"
   -- 命名扩展
   modimport "postinit/c_named.lua"
+  -- 修复bug
+  modimport "postinit/c_follower.lua"
   -- oldfish 扩展 - 称号、升级等
   modimport "postinit/c_oldfish.lua"
   -- 掉落消失
