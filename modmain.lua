@@ -683,12 +683,6 @@ if true then
   modimport "postinit/c_oldfish.lua"
   -- 掉落消失
   modimport "postinit/c_lootdropper.lua"
-  -- 取消物理碰撞
-  -- AddPrefabPostInit("blowdart_sleep",function(inst) inst.Physics:ClearCollisionMask() end)
-  -- AddPrefabPostInit("blowdart_fire",function(inst) inst.Physics:ClearCollisionMask() end)
-  -- AddPrefabPostInit("blowdart_pipe",function(inst) inst.Physics:ClearCollisionMask() end)
-  -- AddPrefabPostInit("blowdart_yellow",function(inst) inst.Physics:ClearCollisionMask() end)
-  -- AddPrefabPostInit("blowdart_walrus",function(inst) inst.Physics:ClearCollisionMask() end)
   local function Id2Player(id)
     local player = nil
     for k,v in pairs(GLOBAL.AllPlayers) do
@@ -705,14 +699,14 @@ if true then
     if inst == nil then
       return OldNetworking_Say(guid, userid, name, prefab, message, colour, whisper, isemote)
     end
-    local showoldsay=true
+    local showoldsay = true
     if string.len(message)>1 and string.sub(message,1,1) == "#" then
       local commands = {}
       for command in string.gmatch(string.sub(message,2,string.len(message)), "%S+") do
         table.insert(commands, string.lower(command))
       end
+      showoldsay = false
       if commands[1]=="称号" or commands[1]=="ch" then
-        showoldsay = false
         local chenghao = commands[2]
         if chenghao ~= nil and chenghao ~= "" then
           if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100000 then
@@ -723,7 +717,6 @@ if true then
           end
         end
       elseif commands[1]=="升级" or commands[1]=="levelup" then
-        showoldsay = false
         if inst.components.inventory and inst.components.oldfish then
           local hasPart, count = inst.components.inventory:Has("oldfish_part_gem", 4)
           local totalcount = count
@@ -743,6 +736,8 @@ if true then
             inst.components.inventory:Equip(wing)
           end
         end
+      elseif commands[1]=="回城" or commands[1]=="tp" then
+        local chenghao = commands[2]
       elseif commands[1]=="绑定" or commands[1]=="bind" then
         local function bind(equip)
           if equip then
@@ -760,13 +755,14 @@ if true then
           end
         end
         -- 这里使用天涯百宝箱「天涯神杖」的权限设定。
-        showoldsay = false
         if inst.components.inventory then
           for idx,val in pairs(EQUIPSLOTS) do
             local equip = inst.components.inventory:GetEquippedItem(val)
             bind(equip)
           end
         end
+      else
+        showoldsay = true
       end
     end
     if showoldsay then
