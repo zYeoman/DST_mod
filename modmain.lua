@@ -737,7 +737,38 @@ if true then
           end
         end
       elseif commands[1]=="回城" or commands[1]=="tp" then
-        local chenghao = commands[2]
+        local dest = commands[2]
+        if dest == nil or dest == "" then
+          -- 回城到路灯位置
+          for k,v in pairs(GLOBAL.Ents) do
+            if v.prefab == "fyjiedeng" then
+              if v.ownerlist and v.ownerlist.master == userid and v.ownerlist.jiahu then
+                if inst.Physics ~= nil then
+                  inst.Physics:Teleport(v.Transform:GetWorldPosition())
+                else
+                  inst.Transform:SetPosition(v.Transform:GetWorldPosition())
+                end
+                break
+              end
+            end
+          end
+        else
+          -- 回城到具体木牌位置
+          -- 比较麻烦，决定不搞了
+          local num = tonumber(dest) or 0
+          num = math.min(99, num)
+          if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100*num then
+            inst.components.seplayerstatus:DoDeltaCoin(-100*num)
+            for i=1,num do
+              local rtytp = SpawnPrefab("rtytp")
+              if inst.components.inventory and rtytp then
+                inst.components.inventory:GiveItem(rtytp)
+              else
+                break
+              end
+            end
+          end
+        end
       elseif commands[1]=="绑定" or commands[1]=="bind" then
         local function bind(equip)
           if equip then
