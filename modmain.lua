@@ -11,6 +11,18 @@ local BIOLOGY_PERIOD = GetModConfigData("biology_period")
 local ARMOUR_ARMOR = GetModConfigData("armour_armor")
 local MORE_STRENGTHENING = GetModConfigData("more_strengthening")
 
+-- 禁止草蜥蜴、生病
+-- no more grass morphing
+TUNING.GRASSGEKKO_MORPH_CHANCE = 0
+
+-- no more disease appearing
+TUNING.DISEASE_CHANCE = 0
+TUNING.DISEASE_DELAY_TIME = 0
+TUNING.DISEASE_DELAY_TIME_VARIANCE = 0
+-- 帐篷使用次数
+TUNING.TENT_USES = 1000
+TUNING.SIESTA_CANOPY_USES = 1000
+
 --血量（BOSS）
 TUNING.DRAGONFLY_HEALTH = 27500 * GetModConfigData("health_boss")                            --龙蝇
 TUNING.BEARGER_HEALTH = 3000 * 2 * GetModConfigData("health_boss")                           --熊大
@@ -664,8 +676,7 @@ if true then
   -- 炼丹炉显示剩余时间
   modimport "postinit/p_alchmy_fur.lua"
   -- 增加OnSave/OnLoad存储伤害以及属性
-  -- 修复铥棒
-  -- 火腿伤害降低问题 - 都修复了！通过修改setdamage函数
+  -- 修复铥棒 火腿伤害降低问题 - 都修复了！通过修改setdamage函数
   modimport "postinit/c_weapon.lua"
   -- 修复SetLastTarget问题
   modimport "postinit/c_combat.lua"
@@ -683,6 +694,9 @@ if true then
   modimport "postinit/c_oldfish.lua"
   -- 掉落消失
   modimport "postinit/c_lootdropper.lua"
+  -- 绑定不能被施法
+  -- 防卡一招
+  -- modimport "postinit/lagprevent.lua"
   local function Id2Player(id)
     local player = nil
     for k,v in pairs(GLOBAL.AllPlayers) do
