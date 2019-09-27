@@ -883,15 +883,6 @@ for k, v in pairs(CreaturesOri) do
       inst:RemoveEventCallback("attacked", siwanggonggao)
       local attacker = "【" .. GetAttacker(data) .. "】"
       local vicitim = "【".. GetInstName(inst) .."】"
-      local count = math.floor(inst.components.health.maxhealth/10000/((1-(inst.components.health.absorb or 0))*inst.components.combat.externaldamagetakenmultipliers:Get()+0.01))
-      if data and data.attacker and data.attacker.components and data.attacker.components.inventory then
-        for i=1,math.min(99, count) or 0 do
-          local vic = SpawnPrefab('oldfish_part_gem')
-          if vic ~= nil then
-            data.attacker.components.inventory:GiveItem(vic)
-          end
-        end
-      end
       if v == "glommer" then
         TheNet:Announce("可恶的" .. attacker .. "杀死了可怜的" .. vicitim)
         return
