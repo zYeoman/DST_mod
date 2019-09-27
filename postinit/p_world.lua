@@ -87,8 +87,19 @@ local function punish(inst)
 end
 
 AddPrefabPostInit("world", function(inst)
+  local function gongzi(v)
+    if v.components.seplayerstatus then
+      local cycles1 = TheWorld.state.cycles
+      local cycles2 = v.components.age:GetAgeInDays()*20
+      if v.components.seplayerstatus.coin <= 1000 then
+        v.components.seplayerstatus:DoDeltaCoin(math.max(cycles1, cycles2, 200))
+      end
+    end
+  end
+  -- inst:WatchWorldState("cycles", gongzi)
   inst:ListenForEvent("cycleschanged", function(inst, data)
     for k,v in pairs(AllPlayers) do
+      gongzi(v)
       if v and v.components.oldfish and v.components.oldfish.level % 250 == 0 then
         v.components.oldfish.modifier = 0
         if math.random() < 0.4 then

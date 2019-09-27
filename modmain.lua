@@ -837,16 +837,6 @@ local function GetAttacker(data)
 end
 
 AddPrefabPostInit("world", function(inst)
-  local function gongzi()
-    for k,v in ipairs(_G.AllPlayers) do
-      if v.components.seplayerstatus then
-        local cycles1 = TheWorld.state.cycles
-        local cycles2 = v.components.age:GetAgeInDays()*20
-        v.components.seplayerstatus:DoDeltaCoin(math.max(cycles1, cycles2))
-      end
-    end
-  end
-  inst:WatchWorldState("cycles", gongzi)
   inst.OnLoad = function(inst, data)
     if data ~= nil and data._get_stronger then
       _G.get_stronger = data._get_stronger
