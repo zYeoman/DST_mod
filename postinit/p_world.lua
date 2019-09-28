@@ -24,7 +24,9 @@ local function punish(inst)
       end
       if inst._punish >= level then
         inst._punish = 1
-        inst._punish_task:Cancel()
+        if inst._punish_task then
+          inst._punish_task:Cancel()
+        end
         inst._punish_task = nil
         inst.components.oldfish.modifier = 1-level/1000
         inst.components.oldfish:DoDelta_level(1)
