@@ -167,8 +167,10 @@ end
 c_onattack.poison = function(self, attacker, target, v)
   -- 剧毒
   local modifier = 0.1*v/(6+v)
-  target.AnimState:SetMultColour(0,1,1,1)
-  target.AnimState:SetAddColour(0,0,0,0)
+  if target.AnimState then
+    target.AnimState:SetMultColour(0,1,1,1)
+    target.AnimState:SetAddColour(0,0,0,0)
+  end
   for i=1,3+math.floor(modifier*120),2 do
     target:DoTaskInTime(i,function()
       if not target.components.health:IsDead() then
@@ -177,8 +179,10 @@ c_onattack.poison = function(self, attacker, target, v)
     end)
   end
   debounce(target, "poison", 3+modifier*120, function()
-    target.AnimState:SetMultColour(1,1,1,1)
-    target.AnimState:SetAddColour(0,0,0,0)
+    if target.AnimState then
+      target.AnimState:SetMultColour(1,1,1,1)
+      target.AnimState:SetAddColour(0,0,0,0)
+    end
   end)
 end
 
@@ -231,17 +235,23 @@ c_onattack.dehealth = function(self, attacker, target, v)
   -- 阻止回血
   local modifier = 1-v/(5+v)
   if target.components.health.regen ~= nil then
-    target.AnimState:SetMultColour(0,1,0,1)
-    target.AnimState:SetAddColour(0.5,0,0,0)
+    if target.AnimState then
+      target.AnimState:SetMultColour(0,1,0,1)
+      target.AnimState:SetAddColour(0.5,0,0,0)
+    end
     local am = target.components.health.regen.amount / (target._dehealth or 1)
     if target._dehealth and target._dehealth > modifier then
       target.components.health.regen.amount = am*modifier
       target._dehealth = modifier
     end
     debounce(target, "dehealth", 10, function()
-      target.components.health.regen.amount = am
-      target.AnimState:SetMultColour(1,1,1,1)
-      target.AnimState:SetAddColour(0,0,0,0)
+      if target.components.health.regen then
+        target.components.health.regen.amount = am
+      end
+      if target.AnimState then
+        target.AnimState:SetMultColour(1,1,1,1)
+        target.AnimState:SetAddColour(0,0,0,0)
+      end
     end)
   end
 end
