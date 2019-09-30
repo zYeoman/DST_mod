@@ -873,17 +873,29 @@ for k, v in pairs(CreaturesOri) do
       inst:RemoveEventCallback("attacked", siwanggonggao)
       local attacker = "【" .. GetAttacker(data) .. "】"
       local vicitim = "【".. GetInstName(inst) .."】"
-      if v == "glommer" then
-        TheNet:Announce("可恶的" .. attacker .. "杀死了可怜的" .. vicitim)
-        return
-      end
-      if v == "klaus" then
-        if inst.kaimiao and inst.kaimiao == 0 then
-          TheNet:Announce(attacker.."解开了"..vicitim.."的锁链")
-          return
+      local attackerinst = data and data.attacker
+      if attackerinst==nil then return end
+      if attackerinst:HasTag("player") then
+        if attackerinst.yeo_lastattack == v then
+          attackerinst.yeo_lastcount = (attackerinst.yeo_lastcount or 0) + 1
+        else
+          attackerinst.yeo_lastcount = 1
+        end
+        attackerinst.yeo_lastattack = v
+        if attackerinst.yeo_lastcount % 10 == 1 then
+          if v == "glommer" then
+            TheNet:Announce("可恶的" .. attacker .. "杀死了可怜的" .. vicitim)
+            return
+          end
+          if v == "klaus" then
+            if inst.kaimiao and inst.kaimiao == 0 then
+              TheNet:Announce(attacker.."连续"..attackerinst.yeo_lastcount.."次解开了"..vicitim.."的锁链")
+              return
+            end
+          end
+          TheNet:Announce(attacker .."连续"..attackerinst.yeo_lastcount.. "次给了" .. vicitim .. "最后一击")
         end
       end
-      TheNet:Announce(attacker .. "给了" .. vicitim .. "最后一击")
     end
 
     local function ondeath(inst)
