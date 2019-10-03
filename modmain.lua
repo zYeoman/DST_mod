@@ -919,7 +919,7 @@ for k, v in pairs(CreaturesOri) do
         inst:ListenForEvent("death", ondeath)
     end
 
-    if k < 17 then
+    if k < 17 and v~= "klaus" then
       inst:DoTaskInTime(0.1, function(inst)
         local vicitim = "【".. GetInstName(inst) .."】"
         TheNet:Announce("BOSS "..vicitim.."出现！")
