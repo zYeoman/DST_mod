@@ -157,7 +157,7 @@ function _strong.klaus(inst)
     change_num = change_num + 1
   end
 
-  inst:DoPeriodicTask(8, OnPeriodicTask)
+  -- inst:DoPeriodicTask(8, OnPeriodicTask)
 end
 
 return _strong
