@@ -28,7 +28,6 @@ local function punish(inst)
           inst._punish_task:Cancel()
         end
         inst._punish_task = nil
-        inst.components.oldfish.modifier = 1-level/1000
         inst.components.oldfish:DoDelta_level(1)
       end
     end)
@@ -85,6 +84,8 @@ local function punish(inst)
       end
       SpawnPrefab("shadowmeteor").Transform:SetPosition(pt.x, 0, pt.z)
     end)
+  else
+    the_punish(function()end)
   end
 end
 
@@ -103,8 +104,7 @@ AddPrefabPostInit("world", function(inst)
     for k,v in pairs(AllPlayers) do
       gongzi(v)
       if v and v.components.oldfish and v.components.oldfish.level % 250 == 0 then
-        v.components.oldfish.modifier = 0
-        if math.random() < 0.4 then
+        if math.random() < 0.8 then
           -- 天罚！
           if v.components.talker then
             v.components.talker:Say("好像有什么东西要来了")
