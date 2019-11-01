@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 -- 添加天劫系统
---
+-- 添加工资系统
 
 local function punish(inst)
   -- 250级雷劫
@@ -13,14 +13,21 @@ local function punish(inst)
   -- 750级风劫
   -- 1000级陨石劫
   local level = inst.components.oldfish.level
-  local function the_punish(fn)
+  local function the_punish(ftick, fbegin, fend)
+    if fbegin ~= nil then fbegin() end
     inst._punish = inst._punish or 1
     inst._punish_task = inst._punish_task or inst:DoPeriodicTask(0.2, function()
-      fn()
+      if inst.components.combat.externaldamagetakenmultipliers:Get()==0 then
+        return
+      end
+      if ftick ~= nil then ftick() end
       inst._punish = inst._punish+1
       if inst:HasTag("playerghost") then
-        inst._punish_task:Cancel()
+        if inst._punish_task ~= nil then
+          inst._punish_task:Cancel()
+        end
         inst._punish_task = nil
+        if fend ~= nil then fend() end
       end
       if inst._punish >= level then
         inst._punish = 1
@@ -32,25 +39,26 @@ local function punish(inst)
       end
     end)
   end
-  if level == 250 then
+  local modlevel = level % 1000
+  if modlevel == 250 then
     if inst.components.talker then
-      inst.components.talker:Say("此乃天雷之灾，天降250道神雷劈我o((⊙﹏⊙))o.")
+      inst.components.talker:Say("此乃天雷之灾，天降"..level.."道神雷劈我o((⊙﹏⊙))o.")
     end
     the_punish(function()
       local fx
       local x1, y1, z1 = inst.Transform:GetWorldPosition()
-      local rad = math.random(2, 30)
+      local rad = math.random(2, 31)
       local angle = math.random() * 2 * PI
       local x2, y2, z2 = x1 + rad * math.cos(angle), y1, z1 + rad * math.sin(angle)
       fx = SpawnPrefab("lightning")
       if rad < 5 then
         fx.Transform:SetPosition(x1,y1,z1)
-        inst.components.combat:GetAttacked(fx, 8, nil, "electric")
+        inst.components.combat:GetAttacked(fx, 32*level/1000, nil, "electric")
       else
         fx.Transform:SetPosition(x2,y2,z2)
       end
     end)
-  elseif level == 500 then
+  elseif modlevel == 500 then
     if inst.components.talker then
       inst.components.talker:Say("此乃阴火之灾，火灭不了啊o((⊙﹏⊙))o.")
     end
@@ -58,16 +66,17 @@ local function punish(inst)
       if inst.components.burnable then
         inst.components.burnable:Ignite()
         inst.components.burnable:SetBurnTime(10)
+        inst.components.health:DoDelta(-1*level/1000, nil, nil, true)
       end
     end)
-  elseif level == 750 then
+  elseif modlevel == 750 then
     if inst.components.talker then
       inst.components.talker:Say("此乃赑风之灾，风吹得我喘不过气o((⊙﹏⊙))o.")
     end
     the_punish(function()
-      inst.components.health:DoDelta(-1, nil, nil, true)
+      inst.components.health:DoDelta(-1.33*level/1000, nil, nil, true)
     end)
-  elseif level == 1000 then
+  else
     if inst.components.talker then
       inst.components.talker:Say("天道受不了啦，他乱扔石头砸我！o((⊙﹏⊙))o.")
     end
@@ -83,9 +92,11 @@ local function punish(inst)
         pt.z = pt.z + offset.z
       end
       SpawnPrefab("shadowmeteor").Transform:SetPosition(pt.x, 0, pt.z)
+    end, function()
+      inst.components.combat.externaldamagetakenmultipliers:SetModifier("punish",level/1000+1)
+    end,function()
+      inst.components.combat.externaldamagetakenmultipliers:RemoveModifier("punish")
     end)
-  else
-    the_punish(function()end)
   end
 end
 
@@ -104,7 +115,7 @@ AddPrefabPostInit("world", function(inst)
     for k,v in pairs(AllPlayers) do
       gongzi(v)
       if v and v.components.oldfish and v.components.oldfish.level % 250 == 0 then
-        if math.random() < 0.8 then
+        if math.random() < 0.2 and v.components.combat.externaldamagetakenmultipliers:Get() > 0 then
           -- 天罚！
           if v.components.talker then
             v.components.talker:Say("好像有什么东西要来了")
