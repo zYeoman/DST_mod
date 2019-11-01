@@ -432,7 +432,7 @@ if true then
   modimport "postinit/c_lootdropper.lua"
   -- 绑定不能被施法
   -- 防卡一招
-  -- modimport "postinit/lagprevent.lua"
+  modimport "postinit/lagprevent.lua"
   local function Id2Player(id)
     local player = nil
     for k,v in pairs(GLOBAL.AllPlayers) do
