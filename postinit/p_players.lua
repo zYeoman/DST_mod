@@ -51,6 +51,8 @@ AddPlayerPostInit(function(inst)
         end
       elseif food.prefab == "hongmeng_pill" then
         inst.components.oldfish.daoyuan = inst.components.oldfish.daoyuan + 25
+      elseif food.prefabs == "mandrake" then
+        inst.components.oldfish:punish()
       else
         local swlingli = math.floor(food.components.edible.healthvalue*0.4 + food.components.edible.hungervalue*0.1 + food.components.edible.sanityvalue*0.5)*100
         inst.components.oldfish:DoDelta_exp(swlingli)
