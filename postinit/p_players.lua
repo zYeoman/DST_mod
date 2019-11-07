@@ -40,11 +40,15 @@ AddPlayerPostInit(function(inst)
 
       end
   end
+  local function gaussian (mean, variance)
+    return  math.sqrt(-2 * variance * math.log(math.random())) *
+            math.cos(2 * math.pi * math.random()) + mean
+  end
   function oneatfn(inst, data)
     local food = data.food
     if food then
       if food.prefab == "daoyaun_pill" then
-        if math.random() < 1/(inst.components.oldfish.xxlevel+1)^2 then
+        if math.abs(gaussian(0, 1)) > 3*(inst.components.oldfish.xxlevel/16) then
           inst.components.oldfish.xxlevel = inst.components.oldfish.xxlevel + 1
           inst.components.talker:Say('一朝顿悟，等级上升')
           inst.components.oldfish:touxian()
