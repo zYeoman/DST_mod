@@ -207,6 +207,15 @@ AddComponentPostInit("oldfish", function (oldfish)
     self:SetName()
   end
 
+  function oldfish:endpunish()
+    local inst = self.inst
+    if inst._punish_task ~= nil then
+      inst._punish_task:Cancel()
+      inst._punish_task = nil
+      inst._punish = 1
+    end
+  end
+
   function oldfish:punish()
     -- 250级雷劫
     -- 500级火劫
