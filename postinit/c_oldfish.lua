@@ -23,24 +23,24 @@ AddComponentPostInit("oldfish", function (oldfish)
     self.name = name
   end
   local function update(self)
-      if self.level > 250 then
-        self.inst:AddTag("electricdamageimmune")
-      end
-      if self.level > 500 then
-        self.inst.components.health.fire_damage_scale = 0
-      end
-      if self.level > 750 then
-        self.inst.components.health:StartRegen(2, 1)
-      end
-      if self.level > 1000 then
-        self.inst.components.combat.externaldamagetakenmultipliers:SetModifier("sq_level_5", 0.25)
-      end
-      if self.level > 1250 then
-        self.inst.components.combat.areahitdamagepercent = 0.5
-        self.inst.components.combat.areahitrange = 4
-      end
-      if self.level > 1500 then
-      end
+    if self.level > 250 then
+      self.inst:AddTag("electricdamageimmune")
+    end
+    if self.level > 500 then
+      self.inst.components.health.fire_damage_scale = 0
+    end
+    if self.level > 750 then
+      self.inst.components.health:StartRegen(2, 1)
+    end
+    if self.level > 1000 then
+      self.inst.components.combat.externaldamagetakenmultipliers:SetModifier("sq_level_5", 0.25)
+    end
+    if self.level > 1250 then
+      self.inst.components.combat.areahitdamagepercent = 0.5
+      self.inst.components.combat.areahitrange = 4
+    end
+    if self.level > 1500 then
+    end
   end
 
   function oldfish:SetName(name, key)
