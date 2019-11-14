@@ -115,7 +115,6 @@ AddComponentPostInit("oldfish", function (oldfish)
         break
       end
       if self.xxlevel<16 and self.level >= 2^self.xxlevel then
-        self.level = 1
         self.xxlevel = self.xxlevel + 1
         self:touxian()
       end
