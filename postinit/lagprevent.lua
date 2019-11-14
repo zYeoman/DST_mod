@@ -12,71 +12,19 @@ local _G = GLOBAL
 -- 指数增长速度
 local rate = 1.1
 
-local prefabs = 
-{
-
-  mole = 24,
-  --molehill = 24,
-
-  bee = 60,
-  killerbee = 30,
-
-  -- babybeefalo = 5,
-  -- beefalo = 20,
-  -- beefaloherd = 20,
-
-  bat = 40,
-  frog = 40,
-
-  mosquito = 20,
-
-  monkey = 40,
-
-  spiderden = 40,
+local prefabs = {
   spider = 60,
   spider_warrior = 30,
   spiderqueen = 5,
   spider_hider = 60,
   spider_spitter = 35,
-
   skeleton_player = 16,
-
-  spoiled_food = 500,
-
-  --hound = 20,
+  hound = 40,
   firehound = 20,
   icehound = 20,
-
-  bunnyman = 30,
-  pigman = 30,
   merm = 30,
   rocky = 30,
-
-  -- leif_sparse = 10,
-  -- lightninggoat = 10,
-
-  -- mossling = 12,
   klaus = 1,
-
-  glommer = 8,
-  rabbit = 160,
-  --rabbithole = 160,
-
-  penguin = 40,
-
-  --fireflies = 600,
-
-  --marsh_bushs = 150,
-  --red_mushroom = 160,
-  --blue_mushroom = 160,
-  --green_mushroom = 160,
-  --flower = 200,
-  --cactuss = 200,
-  --carrot_planteds = 200,
-  --tumbleweedspawners = 50,
-  --tumbleweed = 50,
-  --saplings = 1000,
-  --grass = 500,
 }
 
 function clazz(_ctor)
@@ -258,27 +206,28 @@ local spawn_fn = function (name, ent)
   list:Append(ent)
 end
 
-  local count_fn = function (name, ent)
-    if counts[name] == nil then
-      counts[name] = 1
-    else
-      counts[name] = counts[name] + 1
-    end
-    return counts[name]
+local count_fn = function (name, ent)
+  if counts[name] == nil then
+    counts[name] = 1
+  else
+    counts[name] = counts[name] + 1
   end
+  return counts[name]
+end
 
-  local do_strength = function(ent)
-    if ent~=nil and ent.components.combat~=nil and ent.components.health~=nil then
-      local choice = math.random(3)
-      if choice == 1 then
-        ent.components.health:SetMaxHealth(ent.components.health.maxhealth*rate)
-      elseif choice == 2 then
-        ent.components.combat.externaldamagemultipliers:SetModifier("limit", rate*ent.components.combat.externaldamagemultipliers:CalculateModifierFromSource("limit"))
-      elseif choice == 3 then
-        ent.components.combat.externaldamagetakenmultipliers:SetModifier("limit", rate*ent.components.combat.externaldamagetakenmultipliers:CalculateModifierFromSource("limit"))
-      end
+local do_strength = function(ent)
+  if ent~=nil and ent.components.combat~=nil and ent.components.health~=nil then
+    local choice = math.random(3)
+    if choice == 1 then
+      ent.components.health:SetMaxHealth(ent.components.health.maxhealth*rate)
+      ent.components.health:SetPercent(1)
+    elseif choice == 2 then
+      ent.components.combat.externaldamagemultipliers:SetModifier("limit", rate*(ent.components.combat.externaldamagemultipliers:CalculateModifierFromSource("limit") or 1))
+    elseif choice == 3 then
+      ent.components.combat.externaldamagetakenmultipliers:SetModifier("limit", 1/rate*(ent.components.combat.externaldamagetakenmultipliers:CalculateModifierFromSource("limit") or 1))
     end
   end
+end
 
 local function WaitActivated(inst)
   local TheWorld = inst
@@ -286,21 +235,23 @@ local function WaitActivated(inst)
   if _G.SpawnPrefab ~= nil then
     old_SpawnPrefab = _G.SpawnPrefab
     _G.SpawnPrefab = function (name, skin, skin_id, creator, ...)
+      local ent = old_SpawnPrefab(name, skin, skin_id, creator, ...)
       local lim = prefabs[name]
       if lim ~= nil then
-        lim = lim*4
         local N = count_fn(name, ent)
         if N > lim then
           local to_strength = sel_random(name)
           do_strength(to_strength)
         else
-          local ent = old_SpawnPrefab(name, skin, skin_id, creator, ...)
-          ent:ListenForEvent("onremove", dec_fn)
-          spawn_fn(name, ent)
-          return ent
+          if ent then
+            ent:ListenForEvent("onremove", dec_fn)
+            spawn_fn(name, ent)
+          end
         end
       end
-      return nil
+      return ent
     end
   end
 end
+
+AddPrefabPostInit("world", WaitActivated)
