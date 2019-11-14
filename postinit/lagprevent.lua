@@ -229,6 +229,30 @@ local do_strength = function(ent)
   end
 end
 
+local function cleanAfter1Day(inst)
+  -- print(inst.prefab.."will disappear in one day")
+  inst._disappearTask = inst:DoTaskInTime(TUNING.TOTAL_DAY_TIME+50, function()
+    inst:Remove()
+  end)
+  inst._disappearTaskAnim = inst:DoTaskInTime(TUNING.TOTAL_DAY_TIME, function()
+    inst:DoPeriodicTask(1.02, function()
+      inst.AnimState:SetMultColour(1,1,1,0)
+    end)
+    inst:DoPeriodicTask(1, function()
+      inst.AnimState:SetMultColour(0.3,0.3,0.3,0)
+    end)
+  end)
+  inst:ListenForEvent("onputininventory", function()
+    if inst._disappearTask then
+      inst._disappearTask:Cancel()
+    end
+    if inst._disappearTaskAnim then
+      inst._disappearTaskAnim:Cancel()
+    end
+    inst.AnimState:SetMultColour(1,1,1,0)
+  end)
+end
+
 local function WaitActivated(inst)
   local TheWorld = inst
   local old_SpawnPrefab = nil
@@ -248,6 +272,12 @@ local function WaitActivated(inst)
             spawn_fn(name, ent)
           end
         end
+      end
+      if ent.components.inventoryitem ~= nil
+        and ent.components.health == nil
+        and not ent:HasTag("locomotor")
+        then
+          cleanAfter1Day(ent)
       end
       return ent
     end

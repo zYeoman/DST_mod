@@ -429,7 +429,7 @@ if true then
   -- oldfish 扩展 - 称号、升级等
   modimport "postinit/c_oldfish.lua"
   -- 掉落消失
-  modimport "postinit/c_lootdropper.lua"
+  -- modimport "postinit/c_lootdropper.lua"
   -- 绑定不能被施法
   -- 防卡一招
   modimport "postinit/lagprevent.lua"
