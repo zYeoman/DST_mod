@@ -79,7 +79,17 @@ AddComponentPostInit("oldfish", function (oldfish)
       self:DoDelta_level(level_delta)
     end
   end
+
+  function oldfish:DoDelta_gengu(delta)
+    self.gengu = math.clamp(self.gengu+delta, 1, 16)
+    self:touxian()
+    local basename='★'
+    local name=string.rep(basename, self.gengu-8)
+    self:SetName(name, 'level')
+  end
+
   function oldfish:touxian()
+    self.gengu = self.gengu or (math.random(3)+8)
     self.xxlevel = self.xxlevel or 1
     self.inst.components.combat.externaldamagemultipliers:SetModifier("touxian", math.max(1,self.xxlevel))
     if self.inst.touxian == nil then
@@ -114,7 +124,9 @@ AddComponentPostInit("oldfish", function (oldfish)
         delta = i
         break
       end
-      if self.xxlevel<16 and self.level >= 2^self.xxlevel then
+      local delta = math.max(self.xxlevel-self.gengu, 0)
+      local baselevel = math.min(self.xxlevel, self.gengu)*100
+      if self.xxlevel<16 and self.level >= baselevel*2^delta then
         self.xxlevel = self.xxlevel + 1
         self:touxian()
       end
@@ -153,11 +165,11 @@ AddComponentPostInit("oldfish", function (oldfish)
     self.inst:DoTaskInTime(0.5, function()
       self.inst.components.talker:Say("升级成功！".. (t_hunger~=0 and "最大饥饿+"..t_hunger or "")..(t_san~=0 and" 最大脑残+" .. t_san or "") .. (t_health~=0 and" 最大生命+" .. t_health or ""))
       self.inst.SoundEmitter:PlaySound("dontstarve/characters/wx78/levelup")
-      update(self)
     end)
   end
   function oldfish:OnSave()
     return {
+      gengu = self.gengu,
       xxlevel = self.xxlevel,
       daoyuan = self.daoyuan,
       level = self.level,
@@ -184,9 +196,10 @@ AddComponentPostInit("oldfish", function (oldfish)
     self.m_sanity = data.m_san or 0
     self.m_hunger = data.m_hunger or 0
     self.xxlevel = data.xxlevel or 1
+    self.gengu = data.gengu or (math.random(3)+8)
     self.daoyuan = data.daoyuan or 0
-    update(self)
     self:touxian()
+    self:DoDelta_gengu(0)
     if self.m_health > self.inst.components.health.maxhealth then
       local percent = self.inst.components.health:GetPercent()
       self.inst.components.health.maxhealth = math.min(self.m_health,20000)

@@ -48,13 +48,18 @@ AddPlayerPostInit(function(inst)
     local food = data.food
     if food then
       if food.prefab == "daoyaun_pill" then
-        if math.abs(gaussian(0, 1)) > 3*(inst.components.oldfish.xxlevel/16) then
+        if math.abs(gaussian(0, 1)) > 3.5*(inst.components.oldfish.xxlevel/16) then
           inst.components.oldfish.xxlevel = inst.components.oldfish.xxlevel + 1
           inst.components.talker:Say('一朝顿悟，等级上升')
           inst.components.oldfish:touxian()
         end
       elseif food.prefab == "hongmeng_pill" then
-        inst.components.oldfish.daoyuan = inst.components.oldfish.daoyuan + 25
+        inst.components.oldfish.daoyuan = inst.components.oldfish.daoyuan + 5
+        if (gaussian(10.5-inst.components.oldfish.gengu, 4)) > 0 then
+          inst.components.oldfish:DoDelta_gengu(1)
+        else
+          inst.components.oldfish:DoDelta_gengu(-1)
+        end
       elseif food.prefab == "mandrake" then
         inst.components.oldfish:punish()
       elseif food.prefab == "mandrake_cooked" then
