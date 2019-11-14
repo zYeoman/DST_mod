@@ -252,7 +252,7 @@ AddComponentPostInit("oldfish", function (oldfish)
           inst._punish_task = nil
           if fend ~= nil then fend() end
         end
-        if inst._punish >= level then
+        if inst._punish >= 500 then
           inst._punish = 1
           if inst._punish_task then
             inst._punish_task:Cancel()
@@ -276,7 +276,7 @@ AddComponentPostInit("oldfish", function (oldfish)
         fx = SpawnPrefab("lightning")
         if rad < 5 then
           fx.Transform:SetPosition(x1,y1,z1)
-          inst.components.combat:GetAttacked(fx, 32*level/1000*xxmodifier, nil, "electric")
+          inst.components.combat:GetAttacked(fx, 32*level/500*xxmodifier, nil, "electric")
         else
           fx.Transform:SetPosition(x2,y2,z2)
         end
@@ -289,7 +289,7 @@ AddComponentPostInit("oldfish", function (oldfish)
         if inst.components.burnable then
           inst.components.burnable:Ignite()
           inst.components.burnable:SetBurnTime(10)
-          inst.components.health:DoDelta(-1*level/1000*xxmodifier, nil, nil, true)
+          inst.components.health:DoDelta(-1*level/500*xxmodifier, nil, nil, true)
         end
       end)
     elseif modlevel == 750 then
@@ -297,7 +297,7 @@ AddComponentPostInit("oldfish", function (oldfish)
         inst.components.talker:Say("此乃赑风之灾，风吹得我喘不过气o((⊙﹏⊙))o.")
       end
       the_punish(function()
-        inst.components.health:DoDelta(-1.33*level/1000*xxmodifier, nil, nil, true)
+        inst.components.health:DoDelta(-1.33*level/500*xxmodifier, nil, nil, true)
       end)
     else
       if inst.components.talker then
@@ -316,7 +316,7 @@ AddComponentPostInit("oldfish", function (oldfish)
         end
         SpawnPrefab("shadowmeteor").Transform:SetPosition(pt.x, 0, pt.z)
       end, function()
-        inst.components.combat.externaldamagetakenmultipliers:SetModifier("punish",level/1000*xxmodifier+1)
+        inst.components.combat.externaldamagetakenmultipliers:SetModifier("punish",level/500*xxmodifier+1)
       end,function()
         inst.components.combat.externaldamagetakenmultipliers:RemoveModifier("punish")
       end)
