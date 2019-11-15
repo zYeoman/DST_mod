@@ -24,7 +24,6 @@ local prefabs = {
   icehound = 20,
   merm = 30,
   rocky = 30,
-  klaus = 1,
 }
 
 function clazz(_ctor)
@@ -197,6 +196,18 @@ local sel_random = function(name, ent)
   return ent
 end
 
+local runforeach = function(name, fn)
+  local list = entlist[name]
+  if list == nil then
+    return
+  end
+  local it = list:Iterator()
+  while it:Next() ~= nil do
+    local current = it:Current()
+    fn(current)
+  end
+end
+
 local spawn_fn = function (name, ent)
   local list = entlist[name]
   if list == nil then
@@ -253,6 +264,12 @@ local function cleanAfter1Day(inst)
   end)
 end
 
+local fns = {}
+
+fns.klaus = function()
+  runforeach('klaus', do_strength)
+end
+
 local function WaitActivated(inst)
   local TheWorld = inst
   local old_SpawnPrefab = nil
@@ -260,17 +277,20 @@ local function WaitActivated(inst)
     old_SpawnPrefab = _G.SpawnPrefab
     _G.SpawnPrefab = function (name, skin, skin_id, creator, ...)
       local ent = old_SpawnPrefab(name, skin, skin_id, creator, ...)
+      if ent==nil then
+        return ent
+      end
+      ent:ListenForEvent("onremove", dec_fn)
+      if fns[name] ~= nil then
+        fns[name]()
+      end
       local lim = prefabs[name]
       if lim ~= nil then
         local N = count_fn(name, ent)
         if N > lim then
           local to_strength = sel_random(name)
           do_strength(to_strength)
-        else
-          if ent then
-            ent:ListenForEvent("onremove", dec_fn)
-            spawn_fn(name, ent)
-          end
+          cleanAfter1Day(ent)
         end
       end
       if ent.components.inventoryitem ~= nil
@@ -279,6 +299,7 @@ local function WaitActivated(inst)
         then
           cleanAfter1Day(ent)
       end
+      spawn_fn(name, ent)
       return ent
     end
   end
