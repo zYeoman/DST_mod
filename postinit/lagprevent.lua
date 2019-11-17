@@ -164,13 +164,14 @@ local entlist = {}
 
 local dec_fn = function (inst)
   local name = inst.prefab
-  if counts[name] > 0 then
-    counts[name] = counts[name] - 1
+  if counts[name]~=nil then
+    if counts[name] > 0 then
+      counts[name] = counts[name] - 1
+    end
   end
-  if entlist[name] == nil then
-    return
+  if entlist[name] ~= nil then
+    entlist[name]:Remove(inst)
   end
-  entlist[name]:Remove(inst)
 end
 
 local sel_random = function(name, ent)
@@ -210,6 +211,7 @@ end
 
 local spawn_fn = function (name, ent)
   local list = entlist[name]
+  ent:ListenForEvent("onremove", dec_fn)
   if list == nil then
     list = LinkedList2()
     entlist[name] = list
@@ -227,7 +229,7 @@ local count_fn = function (name, ent)
 end
 
 local do_strength = function(ent)
-  if ent~=nil and ent.components.combat~=nil and ent.components.health~=nil then
+  if ent~=nil and ent:IsValid() and ent.components.combat~=nil and ent.components.health~=nil then
     local choice = math.random(3)
     if choice == 1 then
       ent.components.health:SetMaxHealth(ent.components.health.maxhealth*rate)
@@ -280,18 +282,9 @@ local function WaitActivated(inst)
       if ent==nil then
         return ent
       end
-      ent:ListenForEvent("onremove", dec_fn)
       if fns[name] ~= nil then
         fns[name]()
-      end
-      local lim = prefabs[name]
-      if lim ~= nil then
-        local N = count_fn(name, ent)
-        if N > lim then
-          local to_strength = sel_random(name)
-          do_strength(to_strength)
-          cleanAfter1Day(ent)
-        end
+        spawn_fn(name, ent)
       end
       if ent.components.inventoryitem ~= nil
         and ent.components.health == nil
@@ -299,7 +292,6 @@ local function WaitActivated(inst)
         then
           cleanAfter1Day(ent)
       end
-      spawn_fn(name, ent)
       return ent
     end
   end
