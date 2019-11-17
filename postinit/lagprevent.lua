@@ -243,16 +243,19 @@ local do_strength = function(ent)
 end
 
 local function cleanAfter1Day(inst)
+  if TheWorld.startclean==nil then
+    return
+  end
   -- print(inst.prefab.."will disappear in one day")
   inst._disappearTask = inst:DoTaskInTime(TUNING.TOTAL_DAY_TIME+50, function()
     inst:Remove()
   end)
   inst._disappearTaskAnim = inst:DoTaskInTime(TUNING.TOTAL_DAY_TIME, function()
-    inst:DoPeriodicTask(1.02, function()
-      inst.AnimState:SetMultColour(1,1,1,0)
+    inst._disappearAnim0 = inst:DoPeriodicTask(1.02, function()
+      inst.AnimState:SetMultColour(1,1,1,1)
     end)
-    inst:DoPeriodicTask(1, function()
-      inst.AnimState:SetMultColour(0.3,0.3,0.3,0)
+    inst._disappearAnim1 = inst:DoPeriodicTask(1, function()
+      inst.AnimState:SetMultColour(0.3,0.3,0.3,0.3)
     end)
   end)
   inst:ListenForEvent("onputininventory", function()
@@ -262,7 +265,13 @@ local function cleanAfter1Day(inst)
     if inst._disappearTaskAnim then
       inst._disappearTaskAnim:Cancel()
     end
-    inst.AnimState:SetMultColour(1,1,1,0)
+    if inst._disappearAnim0 then
+      inst._disappearAnim0:Cancel()
+    end
+    if inst._disappearAnim1 then
+      inst._disappearAnim1:Cancel()
+    end
+    inst.AnimState:SetMultColour(1,1,1,1)
   end)
 end
 
@@ -273,7 +282,9 @@ fns.klaus = function()
 end
 
 local function WaitActivated(inst)
-  local TheWorld = inst
+  TheWorld:DoTaskInTime(120, function()
+    TheWorld.startclean = true
+  end)
   local old_SpawnPrefab = nil
   if _G.SpawnPrefab ~= nil then
     old_SpawnPrefab = _G.SpawnPrefab
