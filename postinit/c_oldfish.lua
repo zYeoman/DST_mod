@@ -259,6 +259,7 @@ AddComponentPostInit("oldfish", function (oldfish)
           end
           inst._punish_task = nil
           inst.components.oldfish:DoDelta_level(1)
+          if fend ~= nil then fend() end
         end
       end)
     end
