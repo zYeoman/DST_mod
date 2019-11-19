@@ -269,17 +269,18 @@ AddComponentPostInit("oldfish", function (oldfish)
         inst.components.talker:Say("此乃天雷之灾，天降"..level.."道神雷劈我o((⊙﹏⊙))o.")
       end
       the_punish(function()
-        local fx
-        local x1, y1, z1 = inst.Transform:GetWorldPosition()
-        local rad = math.random(2, 31)
-        local angle = math.random() * 2 * PI
-        local x2, y2, z2 = x1 + rad * math.cos(angle), y1, z1 + rad * math.sin(angle)
-        fx = SpawnPrefab("lightning")
-        if rad < 5 then
-          fx.Transform:SetPosition(x1,y1,z1)
-          inst.components.combat:GetAttacked(fx, 32*level/500*xxmodifier, nil, "electric")
-        else
-          fx.Transform:SetPosition(x2,y2,z2)
+        if inst._punish % 10 == 0 then
+          local x1, y1, z1 = inst.Transform:GetWorldPosition()
+          local rad = math.random(2, 31)
+          local angle = math.random() * 2 * PI
+          local x2, y2, z2 = x1 + rad * math.cos(angle), y1, z1 + rad * math.sin(angle)
+          local fx = SpawnPrefab("lightning")
+          if rad < 5 then
+            fx.Transform:SetPosition(x1,y1,z1)
+            inst.components.combat:GetAttacked(fx, 32*level/50*xxmodifier, nil, "electric")
+          else
+            fx.Transform:SetPosition(x2,y2,z2)
+          end
         end
       end)
     elseif modlevel == 500 then
