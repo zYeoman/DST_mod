@@ -49,6 +49,10 @@ AddComponentPostInit("oldfish", function (oldfish)
       level_delta = level_delta - 1
       up = up - 100
       self.exp = self.exp + up
+      if up == 0 then
+        self.exp = 0
+        break
+      end
     end
     while self.exp >= up do
       level_delta = level_delta + 1
