@@ -271,7 +271,9 @@ local function cleanAfter1Day(inst)
     if inst._disappearAnim1 then
       inst._disappearAnim1:Cancel()
     end
-    inst.AnimState:SetMultColour(1,1,1,1)
+    if inst.AnimState then
+      inst.AnimState:SetMultColour(1,1,1,1)
+    end
   end)
 end
 
