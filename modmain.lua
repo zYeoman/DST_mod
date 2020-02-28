@@ -705,6 +705,18 @@ for k, v in pairs(CreaturesOri) do
   end)
 end
 
+AddPrefabPostInit("greenstaff", function(inst)
+  local function canshifa(inst,caster, target, pos)
+    if target and target.onlyownerid then
+      return false
+    end
+    return true
+  end
+  if inst.components.spellcaster then
+    inst.components.spellcaster.CanCast = canshifa
+  end
+end)
+
 for k,v in pairs(MionrsOri) do
   AddPrefabPostInit(v, function(inst)
     if v == "balloon" then
