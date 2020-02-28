@@ -12,7 +12,7 @@ AddComponentPostInit("oldfish", function (oldfish)
   oldfish.namelist = {}
 
   local function DoSetName(self)
-    local name = ''
+    local name=''
     if self.namelist then
       for k,v in pairs(support_keys) do
         if self.namelist[v] ~= nil and self.namelist[v] ~= '' then
@@ -20,7 +20,9 @@ AddComponentPostInit("oldfish", function (oldfish)
         end
       end
     end
-    self.name = name
+    if self.inst.touxian then
+      self.inst.touxian:Stext(name,nil,nil,nil,true)
+    end
   end
 
   function oldfish:SetName(name, key)
@@ -37,6 +39,7 @@ AddComponentPostInit("oldfish", function (oldfish)
     end
     DoSetName(self)
   end
+
   function oldfish:DoDelta_exp(delta)
     if delta > 0 then
       self.exp = self.exp + delta*(self.level % 250 == 0 and 0 or 1)
@@ -67,15 +70,15 @@ AddComponentPostInit("oldfish", function (oldfish)
   function oldfish:DoDelta_gengu(delta)
     self.gengu = math.clamp(self.gengu+delta, 1, 16)
     self:touxian()
-    local basename='★'
-    local name=string.rep(basename, self.gengu-8)
-    self:SetName(name, 'level')
   end
 
   function oldfish:touxian()
     self.gengu = self.gengu or (math.random(3)+8)
     self.xxlevel = self.xxlevel or 1
     self.inst.components.combat.externaldamagemultipliers:SetModifier("touxian", math.max(1,self.xxlevel))
+    local basename='★'
+    local name=string.rep(basename, self.gengu-8)
+    self:SetName(name, 'level')
     if self.inst.touxian == nil then
       self.inst.touxian = GLOBAL.SpawnPrefab("touxian") 
       self.inst.touxian.entity:SetParent(self.inst.entity) 
