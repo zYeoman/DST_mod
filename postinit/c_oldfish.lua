@@ -79,12 +79,6 @@ AddComponentPostInit("oldfish", function (oldfish)
     local basename='★'
     local name=string.rep(basename, self.gengu-8)
     self:SetName(name, 'level')
-    if self.inst.touxian == nil then
-      self.inst.touxian = GLOBAL.SpawnPrefab("touxian") 
-      self.inst.touxian.entity:SetParent(self.inst.entity) 
-      self.inst.touxian:Stext("",3,25,1,true) 
-    end 
-    self.inst.touxian:Settietu(self.xxlevel)
     if self.xxlevel > 10 then
       self.inst:AddTag("electricdamageimmune")
     end
@@ -116,8 +110,20 @@ AddComponentPostInit("oldfish", function (oldfish)
       self.inst.components.temperature.maxtemp = 40 
       self.inst.components.temperature.mintemp = 10 
     end
+    if self.inst.touxian == nil then
+      self.inst.touxian = GLOBAL.SpawnPrefab("touxian") 
+      if self.inst.touxian == nil then
+        return
+      end
+      self.inst.touxian.entity:SetParent(self.inst.entity) 
+      self.inst.touxian:Stext("",3,25,1,true) 
+    end 
+    self.inst.touxian:Settietu(self.xxlevel)
   end
   function oldfish:DoDelta_level(delta)
+    self.hunger = self.inst.components.hunger.externalhunger:CalculateModifierFromSource("oldfish") or 0
+    self.health = self.inst.components.health.externalhealth:CalculateModifierFromSource("oldfish") or 0
+    self.sanity = self.inst.components.sanity.externalsanity:CalculateModifierFromSource("oldfish") or 0
     if self.level + delta <= 0 then
       return
     end
@@ -145,17 +151,17 @@ AddComponentPostInit("oldfish", function (oldfish)
       for i=1,math.abs(delta),1 do
         local t_chance = 0.2*(20000-math.max(self.inst.components.hunger.max, self.inst.components.sanity.max, self.inst.components.health.maxhealth))/20000
         if math.random() < t_chance then
-          self.inst.components.hunger.max = self.inst.components.hunger.max + m
+          self.hunger = self.hunger + m
           t_chance = t_chance / 2
           t_hunger = t_hunger + m
         end
         if math.random() < t_chance then
-          self.inst.components.sanity.max = self.inst.components.sanity.max + m
+          self.sanity = self.sanity + m
           t_chance = t_chance / 2
           t_san = t_san + m
         end
         if math.random() < t_chance then
-          self.inst.components.health.maxhealth = self.inst.components.health.maxhealth + m
+          self.health = self.health + m
           t_chance = t_chance / 2
           t_health = t_health + m
         end
@@ -167,6 +173,9 @@ AddComponentPostInit("oldfish", function (oldfish)
     end
     self.inst:DoTaskInTime(0.5, function()
       self.inst.components.talker:Say("升级成功！".. (t_hunger~=0 and "最大饥饿+"..t_hunger or "")..(t_san~=0 and" 最大脑残+" .. t_san or "") .. (t_health~=0 and" 最大生命+" .. t_health or ""))
+      self.inst.components.health:SetMaxHealth(self.health, 'oldfish')
+      self.inst.components.sanity:SetMax(self.sanity, 'oldfish')
+      self.inst.components.hunger:SetMax(self.hunger, 'oldfish')
       self.inst.SoundEmitter:PlaySound("dontstarve/characters/wx78/levelup")
     end)
   end
@@ -177,9 +186,9 @@ AddComponentPostInit("oldfish", function (oldfish)
       daoyuan = self.daoyuan,
       level = self.level,
       exp = self.exp,
-      m_health = self.inst.components.health.maxhealth,
-      m_san = self.inst.components.sanity.max,
-      m_hunger = self.inst.components.hunger.max,
+      m_health = self.health,
+      m_san = self.sanity,
+      m_hunger = self.hunger,
       namelist = self.namelist
     }
   end
@@ -195,29 +204,23 @@ AddComponentPostInit("oldfish", function (oldfish)
       end
     end
     self.exp = data.exp or 0
-    self.m_health = data.m_health or 0
-    self.m_sanity = data.m_san or 0
-    self.m_hunger = data.m_hunger or 0
+    self.health = data.m_health or 0
+    self.sanity = data.m_san or 0
+    self.hunger = data.m_hunger or 0
     self.xxlevel = data.xxlevel or 1
     self.gengu = data.gengu or (math.random(3)+8)
     self.daoyuan = data.daoyuan or 0
     self:touxian()
     self:DoDelta_gengu(0)
-    if self.m_health > self.inst.components.health.maxhealth then
       local percent = self.inst.components.health:GetPercent()
-      self.inst.components.health.maxhealth = math.min(self.m_health,20000)
+      self.inst.components.health:SetMaxHealth(math.min(self.health,20000), 'oldfish')
       self.inst.components.health:SetPercent(percent)
-    end
-    if self.m_sanity > self.inst.components.sanity.max then
       local percent = self.inst.components.sanity:GetPercent()
-      self.inst.components.sanity.max = math.min(self.m_sanity,20000)
+      self.inst.components.sanity:SetMax(math.min(self.sanity,20000), 'oldfish')
       self.inst.components.sanity:SetPercent(percent)
-    end
-    if self.m_hunger > self.inst.components.hunger.max then
       local percent = self.inst.components.hunger:GetPercent()
-      self.inst.components.hunger.max = math.min(self.m_hunger,20000)
+      self.inst.components.hunger:SetMax(math.min(self.hunger,20000), 'oldfish')
       self.inst.components.hunger:SetPercent(percent)
-    end
     self.namelist = data.namelist or {}
     self:SetName()
   end

@@ -424,6 +424,8 @@ if true then
   modimport "postinit/p_fyjiedeng.lua"
   -- 命名扩展
   modimport "postinit/c_named.lua"
+  -- 生命设置修改
+  modimport "postinit/c_health.lua"
   -- 修复bug
   modimport "postinit/c_follower.lua"
   -- oldfish 扩展 - 称号、升级等
