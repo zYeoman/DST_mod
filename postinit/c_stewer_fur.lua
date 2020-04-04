@@ -284,6 +284,9 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
             end
             loot.components.named:SetName(extra_name, "stewer_fur")
             local damage = loot.components.weapon.damage/2
+            local origin = loot.components.weapon.externaldamage and loot.components.weapon.externaldamage:CalculateModifierFromSource("stewer") or 0
+            -- 神奇的算法。其实就是求和除2，但是不会使伤害降低
+            damage = 2*origin - damage
             for i = 2, self.inst.components.container.numslots do
               local item = self.inst.components.container:RemoveItemBySlot(i)
               if item ~= nil then
@@ -291,8 +294,6 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
                 item:Remove()
               end
             end
-            damage = math.max(damage - (loot.components.weapon.basedamage or 0), 0)
-            local origin = loot.components.weapon.externaldamage and loot.components.weapon.externaldamage:CalculateModifierFromSource("stewer") or 0
             loot.components.weapon:SetDamage(math.max(damage, origin), "stewer")
           end
         else
