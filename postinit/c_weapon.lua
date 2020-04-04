@@ -285,7 +285,7 @@ c_onattack.disappear = function(self, attacker, target, v)
 end
 
 AddComponentPostInit("weapon", function(Weapon)
-  Weapon.externaldamage = SourceModifierList(Weapon.inst, 1, SourceModifierList.additive)
+  Weapon.externaldamage = SourceModifierList(Weapon.inst, 0, SourceModifierList.additive)
   function Weapon:SetDamage(dmg, key)
     if dmg==nil then
       return
