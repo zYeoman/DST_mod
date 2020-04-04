@@ -430,6 +430,10 @@ if true then
   modimport "postinit/c_follower.lua"
   -- oldfish 扩展 - 称号、升级等
   modimport "postinit/c_oldfish.lua"
+  -- oldfish 技能
+  modimport "postinit/c_oldfish_skills.lua"
+  -- oldfish 武器
+  modimport "postinit/p_oldfish_weapon.lua"
   -- 掉落消失
   -- modimport "postinit/c_lootdropper.lua"
   -- 绑定不能被施法
