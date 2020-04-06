@@ -54,6 +54,7 @@ AddPlayerPostInit(function(inst)
           inst.components.oldfish:touxian()
         end
       elseif food.prefab == "hongmeng_pill" then
+        inst.components.oldfish.daoyuan = inst.components.oldfish.daoyuan or 0
         inst.components.oldfish.daoyuan = inst.components.oldfish.daoyuan + 5
         if (gaussian(9.5-inst.components.oldfish.gengu, 8)) > 0 then
           inst.components.oldfish:DoDelta_gengu(1)
