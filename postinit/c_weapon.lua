@@ -293,9 +293,18 @@ AddComponentPostInit("weapon", function(Weapon)
     if key==nil then
       key='base'
     end
-    self.externaldamage:SetModifier(key, math.max(dmg, 0))
+    if type(dmg) == "function" then
+      self.dmgf = dmg
+    else
+      self.externaldamage:SetModifier(key, math.max(dmg, 0))
+    end
     self.damage = self.externaldamage:Get()
   end
+
+  function Weapon:GetDamage(attacker, target)
+      return self.damage + (self.dmgf ~= nil and self.dmgf(self.inst, attacker, target) or 0)
+  end
+
   function Weapon:OnSave()
     -- TODO: 下次开服改成直接储存_modifiers
     local exterlist = {}
