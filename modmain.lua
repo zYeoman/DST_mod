@@ -439,6 +439,32 @@ if true then
   -- 绑定不能被施法
   -- 防卡一招
   modimport "postinit/lagprevent.lua"
+
+  -- 中庭去权限
+  -- modimport "postinit/p_atrium_gate.lua"
+  AddPrefabPostInit("atrium_gate", function(inst)
+    local function autodelete(inst)
+      local owner = nil
+      local ents = {}
+      local x = nil
+      local y = nil
+      local z = nil
+
+      x, y, z = inst.Transform:GetWorldPosition()
+
+      if x ~= nil and y ~= nil and z ~= nil then
+        --print("x="..x..", y="..y.."z="..z)
+        ents = TheSim:FindEntities(x, y, z, 30)
+
+        for _,obj in pairs(ents) do
+          obj.ownerlist=nil
+          obj.saved_ownerlist=nil
+        end
+      end
+    end
+    inst:DoPeriodicTask(480, autodelete, 0)
+  end)
+
   local function Id2Player(id)
     local player = nil
     for k,v in pairs(GLOBAL.AllPlayers) do
