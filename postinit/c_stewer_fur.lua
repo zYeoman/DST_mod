@@ -7,6 +7,10 @@
 -- 修改炼丹炉使之支持炼制武器
 --
 --
+local function gaussian (mean, variance)
+  return  math.sqrt(-2 * variance * math.log(math.random())) *
+          math.cos(2 * math.pi * math.random()) + mean
+end
 local types = {
   ["fire"]=1,       -- 火焰
   ["ice"]=1,        -- 冰霜
@@ -195,6 +199,7 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
       end
       local cooktime = 1
       self.product, cooktime = cookcook(self.inst.components.container) --"kabobs" ,  60 -- cooking.CalculateRecipe(self.inst.prefab, ings)
+      self.cooktime = cooktime
       if self.product ~= nil then
         self.percent = nil
         self.targettime = GetTime() + cooktime
@@ -288,6 +293,8 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
             loot.components.named:SetName(extra_name, "stewer_fur")
             local damage = loot.components.weapon.damage/2
             local origin = loot.components.weapon.externaldamage and loot.components.weapon.externaldamage:CalculateModifierFromSource("stewer") or 0
+            local remainingtime = self.targettime ~= nil and self.targettime - GetTime() or 0
+            local cooktime = self.cooktime and self.cooktime or (remainingtime + 1)
             -- 神奇的算法。其实就是求和除2，但是不会使伤害降低
             damage = 2*origin - damage
             for i = 2, self.inst.components.container.numslots do
@@ -297,7 +304,10 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
                 item:Remove()
               end
             end
-            loot.components.weapon:SetDamage(math.max(damage, origin), "stewer")
+            local min = math.min(damage, origin)
+            local max = math.max(damage, origin)
+            local target = (max-min)*(1-remainingtime/cooktime)*(gaussian(0.8, 0.03))+min
+            loot.components.weapon:SetDamage(math.max(target, min), "stewer")
           end
         else
           loot = SpawnPrefab(self.product)
