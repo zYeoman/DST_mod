@@ -435,7 +435,7 @@ if true then
   -- oldfish 武器
   modimport "postinit/p_oldfish_weapon.lua"
   -- 掉落消失
-  -- modimport "postinit/c_lootdropper.lua"
+  modimport "postinit/c_lootdropper.lua"
   -- 绑定不能被施法
   -- 防卡一招
   modimport "postinit/lagprevent.lua"
