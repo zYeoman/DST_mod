@@ -554,16 +554,15 @@ if true then
       elseif commands[1]=="绑定" or commands[1]=="bind" then
         local function bind(equip)
           if equip then
-            if equip.components.named == nil then
-              equip:AddComponent("named")
-              equip.components.named:SetName("")
+            if equip.GetShowItemInfo == nil then
+              equip.components.statusinfo:Init()
             end
             if equip.onlyownerid == nil then
               equip.onlyownerid = userid
-              equip.components.named:SetName("所有者："..name, "bind")
+              equip.components.statusinfo:SetName("所有者："..name.."\n", "bind")
             else
               equip.onlyownerid = nil
-              equip.components.named:SetName("", "bind")
+              equip.components.statusinfo:SetName("", "bind")
             end
           end
         end
@@ -603,6 +602,12 @@ end
 local function GetAttacker(data)
     return data and data.attacker and data.attacker:GetDisplayName() or "*无名*"
 end
+
+AddPrefabPostInitAny(function(inst)
+  if inst.components.statusinfo == nil then
+    inst:AddComponent("statusinfo")
+  end
+end)
 
 AddPrefabPostInit("world", function(inst)
   inst.OnLoad = function(inst, data)

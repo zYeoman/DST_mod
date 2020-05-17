@@ -282,15 +282,14 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
           loot = self.inst.components.container:RemoveItemBySlot(1)
           if loot and loot.components.weapon then
             addtype(loot, weapon_types, math.random(3,5))
-            if loot.components.named == nil then
-              loot:AddComponent("named")
-              loot.components.named:SetName()
+            if loot.GetShowItemInfo == nil then
+              loot.components.statusinfo:Init()
             end
             local extra_name = ""
             for key, value in pairs(loot.components.weapon.types) do
               extra_name = extra_name .. desc[key] .. ' : +' .. value ..'\n'
             end
-            loot.components.named:SetName(extra_name, "stewer_fur")
+            loot.components.statusinfo:SetName(extra_name, "stewer_fur")
             local damage = loot.components.weapon.damage/2
             local origin = loot.components.weapon.externaldamage and loot.components.weapon.externaldamage:CalculateModifierFromSource("stewer") or 0
             local remainingtime = self.targettime ~= nil and self.targettime - GetTime() or 0
