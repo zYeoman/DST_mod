@@ -6,7 +6,7 @@
 --
 
 
-AddComponentPostInit("named", function (Follower)
+AddComponentPostInit("follower", function (Follower)
   local oldSetLeader = Follower.SetLeader
   function Follower:SetLeader(inst)
     if self.inst:IsValid() and inst:IsValid() then
