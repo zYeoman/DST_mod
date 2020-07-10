@@ -441,6 +441,8 @@ if true then
   -- 绑定不能被施法
   -- 防卡一招
   modimport "postinit/lagprevent.lua"
+  -- 工资
+  modimport "postinit/c_seplayerstatus.lua"
 
   -- 中庭去权限
   -- modimport "postinit/p_atrium_gate.lua"
