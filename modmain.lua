@@ -518,6 +518,15 @@ if true then
             inst.components.inventory:Equip(wing)
           end
         end
+      elseif commands[1]=="给我一只哈奇" or commands[1]=="hutch" then
+        -- hutch_fishbowl
+        if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100000 then
+          inst.components.seplayerstatus:DoDeltaCoin(-100000)
+          local hutch_fishbowl = SpawnPrefab("hutch_fishbowl")
+          if inst.components.inventory and hutch_fishbowl then
+            inst.components.inventory:GiveItem(hutch_fishbowl)
+          end
+        end
       elseif commands[1]=="回城" or commands[1]=="tp" then
         local dest = commands[2]
         if dest == nil or dest == "" then
