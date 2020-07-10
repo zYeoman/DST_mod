@@ -123,13 +123,26 @@ local function cookcook(inst)
   elseif inst:Has("golden_armor_mk", 1) and inst:Has("redgem", 1) and inst:Has("bluegem", 1) and inst:Has("purplegem", 1) then
     return "golden_armor_mk" , 120 --重练大圣锁子甲
 
+	elseif inst:Has("armorruins", 1) and inst:Has("bigpeach", 1) and inst:Has("opalpreciousgem", 1) and inst:Has("malbatross_feathered_weave", 1) then
+		return "yangjian_armor" , 240 --锁子清源甲
+		
+	elseif inst:Has("yangjian_armor", 1) and inst:Has("redgem", 1) and inst:Has("bluegem", 1) and inst:Has("purplegem", 1) then
+		return "yangjian_armor" , 120 --重练锁子清源甲
+
   elseif inst:Has("mk_hualing", 2) and inst:Has("ruinshat", 1) and inst:Has("orangemooneye", 1) then
     return "golden_hat_mk" , 240 --凤翅紫金冠
   elseif inst:Has("golden_hat_mk", 1) and inst:Has("redgem", 1) and inst:Has("bluegem", 1) and inst:Has("purplegem", 1) then
     return "golden_hat_mk" , 120 --重练凤翅紫金冠
+	elseif inst:Has("malbatross_beak", 1) and inst:Has("purplemooneye", 1) and inst:Has("bluemooneye", 1) and inst:Has("eyebrellahat", 1) then
+		return "yangjian_hair" , 240 --三山飞凤冠
+		
+	elseif inst:Has("yangjian_hair", 1) and inst:Has("redgem", 1) and inst:Has("bluegem", 1) and inst:Has("purplegem", 1) then
+		return "yangjian_hair" , 120 --三山飞凤冠
 
     elseif inst:Has("laozi_sp", 1) and inst:Has("goldnugget", 1) and (inst:Has("orangegem", 1) or inst:Has("orangeamulet",1)) and inst:Has("pill_bottle_gourd", 1) then
         return "purple_gourd", 960 --紫金葫芦
+    elseif inst:Has("bananafan", 1) and inst:Has("laozi_sp", 1) and inst:Has('dust_resistant_pill',1) and inst:Has('myth_banana_leaf',1) then
+        return "bananafan_big", 960--芭蕉宝扇	
   else
     local i = 0
     local value = 0
