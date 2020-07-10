@@ -231,6 +231,18 @@ configuration_options =
 	    default = false,
 
 	},
+	{
+	  name = "daily_money",
+	  label = "每日工资",
+	  hover = "more strengthening",
+	   options =
+        {
+			{description = "+", data = 200, hover = "+"},
+			{description = "-", data = -200, hover = "-"},
+     	 },
+	    default = 200,
+
+	},
 }
 
 

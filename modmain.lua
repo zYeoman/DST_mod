@@ -11,6 +11,8 @@ local BIOLOGY_PERIOD = GetModConfigData("biology_period")
 local ARMOUR_ARMOR = GetModConfigData("armour_armor")
 local MORE_STRENGTHENING = GetModConfigData("more_strengthening")
 
+TUNING.DAILY_MONEY = GetModConfigData("daily_money")
+
 -- 禁止草蜥蜴、生病
 -- no more grass morphing
 TUNING.GRASSGEKKO_MORPH_CHANCE = 0
