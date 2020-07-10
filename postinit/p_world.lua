@@ -11,20 +11,20 @@ AddPrefabPostInit("world", function(inst)
   local function gongzi(v)
     if v.components.seplayerstatus then
       local gongzi = TUNING.DAILY_MONEY
-      if v.components.seplayerstatus.coin + gongzi <0 then
+      if v.components.seplayerstatus.coin + gongzi < 0 then
         -- 踢回人间
         v.components.talker:Say("租金不够辣，再不挣钱就要被踢走了！倒计时4分钟")
         v:DoTaskInTime(4*60,function()
-          if v.components.seplayerstatus.coin + gongzi <0 then
-            v.components.seplayerstatus:DoDeltaCoin(gongzi)
-          else 
+          if v.components.seplayerstatus.coin + gongzi < 0 then
             inst:PushEvent("ms_playerdespawnandmigrate",
                   { player = v, portalid = 1, worldid = 10 })
-
+          else 
+            v.components.seplayerstatus:DoDeltaCoin(gongzi)
           end
         end)
+      else
+        v.components.seplayerstatus:DoDeltaCoin(gongzi)
       end
-      v.components.seplayerstatus:DoDeltaCoin(gongzi)
     end
   end
   -- inst:WatchWorldState("cycles", gongzi)
