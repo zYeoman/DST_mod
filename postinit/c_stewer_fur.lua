@@ -6,11 +6,30 @@
 --
 -- 修改炼丹炉使之支持炼制武器
 --
---
+-- 2020-07-11 - 添加宝石增加攻击力的彩票功能
+
 local function gaussian (mean, variance)
   return  math.sqrt(-2 * variance * math.log(math.random())) *
           math.cos(2 * math.pi * math.random()) + mean
 end
+
+local __thedate = 0
+local __thestewer = {}
+
+local gems = {"purple","blue","red","orange","yellow","green","opal"}
+
+local function getpailie()
+  local date = _G.TheWorld.state.cycles
+  if date ~= __thedate then
+    __thedate = date
+    __thestewer = {math.random(7),math.random(7),math.random(7)}
+  end
+  for i=1,3,1 do
+    print(gems[__thestewer[i]])
+  end
+  return __thestewer
+end
+
 local types = {
   ["fire"]=1,       -- 火焰
   ["ice"]=1,        -- 冰霜
@@ -146,21 +165,32 @@ local function cookcook(inst)
   else
     local i = 0
     local value = 0
-    local dmg = 0
     for k = 1, inst.numslots do
       local item = inst:GetItemInSlot(k)
       if item and item.components.weapon then
         for k,v in pairs(item.components.weapon.types or {}) do
           value = value + types[k]*v
         end
-        dmg = dmg + item.components.weapon.damage or 0
-        i = i+1
+        i = i + 1
       end
     end
     if i < 4 then
-      return nil, 1.5
+      i = 1
+      local item = inst:GetItemInSlot(1)
+      if item and item.components.weapon then
+        for k = 2, inst.numslots do
+          item = inst:GetItemInSlot(k)
+          if item and item:HasTag("gem") then
+            i = i + 1
+          end
+        end
+      end
+      if i<4 then
+        return nil, 1.5
+      end
+      return "gems", 60+value*15
     else
-      return "weapon", 1+value*15+dmg/4
+      return "weapon", 60+value*15
     end
   end
   return nil , 1.5
@@ -322,7 +352,25 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
             else
               target = ((damage-origin)*math.min(1.5-remainingtime/cooktime,1)+origin) -- *(math.min(gaussian(0.9, 0.001), 1.1))
             end
-            loot.components.weapon:SetDamage(target, "stewer")
+            -- loot.components.weapon:SetDamage(target, "stewer")
+          end
+        elseif self.product == "gems" then
+          loot = self.inst.components.container:RemoveItemBySlot(1)
+          if loot and loot.components.weapon then
+            local pailie = getpailie()
+            local right = 0
+            for i = 2, self.inst.components.container.numslots do
+              local item = self.inst.components.container:RemoveItemBySlot(i)
+              if item ~= nil then
+                if item.colour == gems[i-1] then
+                  right = right + 1
+                end
+                item:Remove()
+              end
+            end
+            local origin = loot.components.weapon.externaldamage and loot.components.weapon.externaldamage:CalculateModifierFromSource("stewer") or 0
+            origin = origin + math.floor(10^right/10)
+            loot.components.weapon:SetDamage(origin, "stewer")
           end
         else
           loot = SpawnPrefab(self.product)
