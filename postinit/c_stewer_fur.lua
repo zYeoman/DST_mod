@@ -203,6 +203,7 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
       if self.product ~= nil then
         self.percent = nil
         self.targettime = GetTime() + cooktime
+        self.the_targettime = GetTime() + cooktime
         if self.task ~= nil then
           self.task:Cancel()
         end
@@ -290,12 +291,8 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
               extra_name = extra_name .. desc[key] .. ' : +' .. value ..'\n'
             end
             loot.components.statusinfo:SetName(extra_name, "stewer_fur")
-            local damage = loot.components.weapon.damage/2
             local origin = loot.components.weapon.externaldamage and loot.components.weapon.externaldamage:CalculateModifierFromSource("stewer") or 0
-            local remainingtime = self.targettime ~= nil and self.targettime - GetTime() or 0
-            local cooktime = self.cooktime and self.cooktime or (remainingtime + 1)
-            -- 神奇的算法。其实就是求和除2，但是不会使伤害降低
-            damage = 2*origin - damage
+            local damage = origin - loot.components.weapon.damage/2
             for i = 2, self.inst.components.container.numslots do
               local item = self.inst.components.container:RemoveItemBySlot(i)
               if item ~= nil then
@@ -303,10 +300,16 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
                 item:Remove()
               end
             end
-            local min = math.min(damage, origin)
-            local max = math.max(damage, origin)
-            local target = (max-min)*(1-remainingtime/cooktime)*(gaussian(0.8, 0.03))+min
-            loot.components.weapon:SetDamage(math.max(target, min), "stewer")
+            local remainingtime = self.the_targettime ~= nil and (self.the_targettime - GetTime()) or 0
+            local cooktime = self.cooktime and self.cooktime or (remainingtime + 1)
+            local remain_ratio = 1-remainingtime/cooktime
+            local target = 0
+            if remainingtime<=10 then
+              target = damage*(math.min(gaussian(1, 0.01), 1.1))
+            else
+              target = ((damage-origin)*math.min(1.5-remainingtime/cooktime,1)+origin) -- *(math.min(gaussian(0.9, 0.001), 1.1))
+            end
+            loot.components.weapon:SetDamage(target, "stewer")
           end
         else
           loot = SpawnPrefab(self.product)
