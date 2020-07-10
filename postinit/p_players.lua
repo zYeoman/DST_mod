@@ -7,6 +7,9 @@
 -- 玩家修改
 --
 --   受伤降低成长伤害
+--
+--   2020-07-11 - 删除击杀蓝水晶奖励
+
 
 AddPlayerPostInit(function(inst)
   inst:ListenForEvent("attacked", function()
@@ -27,17 +30,6 @@ AddPlayerPostInit(function(inst)
       if victim and victim.components.health then
           local healths = victim.components.health.maxhealth
           inst.components.oldfish:DoDelta_exp(healths)
-      end
-      if victim and victim.components.health then
-          local givemax = math.floor((victim.components.health.maxhealth / 2000))
-
-          for i = 1, givemax do
-              local itemexp = SpawnPrefab("oldfish_part_gem")
-              if inst.components.inventory then
-                  inst.components.inventory:GiveItem(itemexp, nil, inst:GetPosition())
-              end
-          end
-
       end
   end
   local function gaussian (mean, variance)
