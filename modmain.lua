@@ -675,11 +675,19 @@ for k, v in pairs(CreaturesOri) do
           end
           if v == "klaus" then
             if inst.kaimiao and inst.kaimiao == 0 then
-              TheNet:Announce(attacker.."连续"..attackerinst.yeo_lastcount.."次解开了"..vicitim.."的锁链")
+              if attackerinst.yeo_lastcount  == 1 then
+                TheNet:Announce(attacker.."解开了"..vicitim.."的锁链")
+              else
+                TheNet:Announce(attacker.."连续"..attackerinst.yeo_lastcount.."次解开了"..vicitim.."的锁链")
+              end
               return
             end
           end
-          TheNet:Announce(attacker .."连续"..attackerinst.yeo_lastcount.. "次给了" .. vicitim .. "最后一击")
+          if attackerinst.yeo_lastcount  == 1 then
+            TheNet:Announce(attacker.."击杀了"..vicitim)
+          else
+            TheNet:Announce(attacker .."连续"..attackerinst.yeo_lastcount.. "次击杀了" .. vicitim )
+          end
         end
       end
     end
@@ -722,7 +730,7 @@ for k, v in pairs(CreaturesOri) do
     end
 
     local stronger = _G.get_stronger[v] or 1
-    local absorb = 0.9*stronger/(20+stronger)
+    local absorb = 0.99*stronger/(20+stronger)
 
     if GLOBAL.TheShard:GetShardId() ~= "1" then
       inst:DoTaskInTime(0.1, function()
@@ -734,7 +742,7 @@ for k, v in pairs(CreaturesOri) do
             local regen = TUNING.BOSS_REGEN/100*inst.components.health.maxhealth
             inst.components.health:StartRegen(regen, 1)
           end
-          absorb = 0.95*stronger/(10+stronger)
+          absorb = 0.999*stronger/(10+stronger)
           if inst.components.combat then
             inst.components.combat.externaldamagetakenmultipliers:SetModifier("yeo_strong", 1-absorb)
           end
