@@ -71,7 +71,6 @@ fns['trinket'] = function(inst, _)
   -- hutch_fishbowl
   if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100000 then
     inst.components.seplayerstatus:DoDeltaCoin(-100000)
-    local hutch_fishbowl = SpawnPrefab("hutch_fishbowl")
     local trinket_list = {"trinket_1", "trinket_2", "trinket_3", "trinket_4", "trinket_5", "trinket_6", "trinket_7", "trinket_8", 
                           "trinket_9", "trinket_10", "trinket_11", "trinket_12", "trinket_13", "trinket_14", "trinket_15", "trinket_16", 
                           "trinket_17", "trinket_18", "trinket_19", "trinket_20", "trinket_21", "trinket_22", "trinket_23", "trinket_24", 
@@ -82,7 +81,7 @@ fns['trinket'] = function(inst, _)
 
     local trinket = SpawnPrefab(trinket_list[math.random(#trinket_list)])
     if inst.components.inventory and trinket then
-      inst.components.inventory:GiveItem(hutch_fishbowl)
+      inst.components.inventory:GiveItem(trinket)
     end
     return false
   end
@@ -91,7 +90,7 @@ end
 fns['地精'] = fns['trinket']
 fns['抽奖'] = fns['trinket']
 
-fns['tp'] = function(inst, dest)
+fns['tp'] = function(inst, dest, name, userid)
   if dest == nil or dest == "" then
     -- 回城到路灯位置
     for k,v in pairs(GLOBAL.Ents) do
@@ -178,7 +177,7 @@ GLOBAL.Networking_Say = function(guid, userid, name, prefab, message, colour, wh
     end
     showoldsay = false
     if commands[1]~=nil and fns[commands[1]]~=nil then
-      showoldsay = fns[commands[1]](inst, commands[2], name)
+      showoldsay = fns[commands[1]](inst, commands[2], name, userid)
     end
   end
   if showoldsay then
