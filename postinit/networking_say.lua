@@ -22,6 +22,41 @@ fns['ch'] = function (inst, chenghao)
 end
 fns['称号'] = fns['ch']
 
+fns['help'] = function (inst)
+  if inst.components.talker then
+    local str = ""
+    for k,v in pairs(fns) do
+      str = str .. k .. "\n"
+    end
+    inst.components.talker:Say(str)
+  end
+end
+
+fns['gengu'] = function (inst, dest)
+  local function gaussian (mean, variance)
+    return  math.sqrt(-2 * variance * math.log(math.random())) *
+            math.cos(2 * math.pi * math.random()) + mean
+  end
+  local n = tonumber(dest)
+  if inst.components.inventory and inst.components.oldfish and n then
+    local hasPart, count = inst.components.inventory:Has("hongmeng_pill", 1)
+    local totalcount = count
+    while  hasPart and count > 0 do
+      count = count - 1
+      if math.abs(gaussian(0, 1)) > 4*(inst.components.oldfish.xxlevel/16) then
+        inst.components.oldfish.xxlevel = inst.components.oldfish.xxlevel + 1
+        inst.components.talker:Say('一朝顿悟，等级上升')
+        inst.components.oldfish:touxian()
+        if inst.components.oldfish.xxlevel >= n then
+          break
+        end
+      end
+    end
+    inst.components.inventory:ConsumeByName("hongmeng_pill", totalcount-count)
+  end
+end
+fns['吃根骨'] = fns['gengu']
+
 fns['levelup'] = function(inst, _)
   if inst.components.inventory and inst.components.oldfish then
     local hasPart, count = inst.components.inventory:Has("oldfish_part_gem", 4)
@@ -38,7 +73,7 @@ fns['levelup'] = function(inst, _)
 end
 fns['升级']=fns['levelup']
 
-fns['wings'] = function (inst, chibang)
+fns['wings'] = function (inst, _)
   if inst.components.seplayerstatus and inst.components.seplayerstatus.coin >= 100000 then
     inst.components.seplayerstatus:DoDeltaCoin(-100000)
     local wings = {"cbdz0","cbdz1","cbdz2","cbdz3","cbdz4","cbdz5","cbdz6","cbdz7","cbdz8"}
