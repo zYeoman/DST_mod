@@ -447,7 +447,7 @@ if true then
   -- 聊天命令
   modimport "postinit/networking_say.lua"
   -- 公告命令
-  -- modimport "postinit/networking_announce.lua"
+  modimport "postinit/networking_announce.lua"
 
   -- 中庭去权限
   -- modimport "postinit/p_atrium_gate.lua"
