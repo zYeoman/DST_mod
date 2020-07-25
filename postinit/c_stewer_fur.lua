@@ -24,9 +24,6 @@ local function getpailie()
     __thedate = date
     __thestewer = {math.random(7),math.random(7),math.random(7)}
   end
-  for i=1,3,1 do
-    print(gems[__thestewer[i]])
-  end
   return __thestewer
 end
 
