@@ -42,6 +42,24 @@ AddPrefabPostInit("world", function(inst)
       end
     end
   end)
+  inst:ListenForEvent("ms_playerdespawn", function(inst, player)
+    local index = 0
+    for i,v in ipairs(TheNet:GetClientTable() or {}) do
+      if v.performance == nil then
+        index = index + 1
+      end
+    end
+    if _G.pending_restart==1 and index == 1 then
+      -- TheWorld:PushEvent("ms_save")
+      TheSystemService:EnableStorage(true)
+      SaveGameIndex:SaveCurrent(Shutdown, true)
+    end
+  end)
 end)
 
+_G.pending_restart = 0
+_G.pendrestart = function ()
+  print("Restart Pending")
+  _G.pending_restart = 1
+end
 
