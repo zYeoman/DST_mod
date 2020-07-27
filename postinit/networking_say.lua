@@ -43,13 +43,14 @@ fns['gengu'] = function (inst, dest)
     local totalcount = count
     while  hasPart and count > 0 do
       count = count - 1
-      if math.abs(gaussian(0, 1)) > 4*(inst.components.oldfish.xxlevel/16) then
-        inst.components.oldfish.xxlevel = inst.components.oldfish.xxlevel + 1
-        inst.components.talker:Say('一朝顿悟，等级上升')
-        inst.components.oldfish:touxian()
-        if inst.components.oldfish.xxlevel >= n then
-          break
-        end
+      inst.components.oldfish.daoyuan = (inst.components.oldfish.daoyuan or 0) + 5
+      if inst.components.oldfish.gengu >= n then
+        break
+      end
+      if (gaussian(9.5-inst.components.oldfish.gengu, 8)) > 0 then
+        inst.components.oldfish:DoDelta_gengu(1)
+      else
+        inst.components.oldfish:DoDelta_gengu(-1)
       end
     end
     inst.components.inventory:ConsumeByName("hongmeng_pill", totalcount-count)
