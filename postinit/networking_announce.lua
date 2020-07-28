@@ -59,11 +59,10 @@ AddPrefabPostInit("world", function(inst)
   -- inst.sendMessage = sendMessage
   -- sendMessage("[Warning] Mod need update")
   inst:DoTaskInTime(1,function()
-      print("\n\n\nHERE\n\n\n")
     if GLOBAL.TheShard:GetShardId()=="10" then
       local oldNetwork_Announce = GLOBAL.Networking_Announcement(message, colour, announce_type)
       GLOBAL.Networking_Announcement = function (message, colour, announce_type)
-        if message:sub(1,3)=="Mod" then
+        if announce_type=="mod" then
           if msgs[message] == nil then
             msgs[message] = true
             sendMessage(message)
