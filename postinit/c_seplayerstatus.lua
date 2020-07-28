@@ -7,8 +7,8 @@
 --
 -- 2020-07-11 - 现实每日登录工资
 
-AddComponentPostInit("playerspawner", function(OnAnnounce, inst)
-  inst:ListenForEvent("ms_playerjoined", function(inst, player)
+AddPrefabPostInit("world", function(inst)
+  inst:ListenForEvent("ms_playerspawn", function(inst, player)
     if player == nil then return end
     player:DoTaskInTime(8, function(player) 
       local datetime = os.date("*t")
