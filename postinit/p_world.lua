@@ -42,24 +42,37 @@ AddPrefabPostInit("world", function(inst)
       end
     end
   end)
-  inst:ListenForEvent("ms_playerdespawn", function(inst, player)
-    local index = 0
-    for i,v in ipairs(TheNet:GetClientTable() or {}) do
-      if v.performance == nil then
-        index = index + 1
-      end
-    end
-    if _G.pending_restart==1 and index == 1 then
-      -- TheWorld:PushEvent("ms_save")
-      TheSystemService:EnableStorage(true)
-      SaveGameIndex:SaveCurrent(Shutdown, true)
-    end
-  end)
 end)
 
-_G.pending_restart = 0
-_G.pendrestart = function ()
-  print("Restart Pending")
-  _G.pending_restart = 1
-end
+if GLOBAL.TheShard:GetShardId()=="1" then
+  _G.yeo_first_start = 1
+  if _G.OnSimPaused ~= nil then
+    local oldOnSimPaused = _G.OnSimPaused
+    _G.OnSimPaused = function()
+      print("OnSimPaused called")
+      local msg=""
+      if _G.yeo_first_start==1 then
+        msg ="服务器启动完成"
+        _G.yeo_first_start=0
+      else
+        msg = "服务器空了"
+      end
+      if _G.pending_restart == 1 then
+        msg = msg.."，重启中"
+        -- TheWorld:PushEvent("ms_save")
+        TheSystemService:EnableStorage(true)
+        SaveGameIndex:SaveCurrent(Shutdown, true)
+      end
+      if _G.send_qq_msg then
+        _G.send_qq_msg("服务器空了")
+      end
+      oldOnSimPaused()
+    end
+  end
 
+  _G.pending_restart = 0
+  _G.pendrestart = function ()
+    print("Restart Pending")
+    _G.pending_restart = 1
+  end
+end

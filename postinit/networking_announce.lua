@@ -33,7 +33,6 @@ end
 
 local function sendMessage(msg)
   local function send(msg)
-    print(msg)
     jsondata = json.encode({target=645370675,sessionKey=session,messageChain={{type='Plain',text=msg}}})
     TheSim:QueryServer(api.."/sendGroupMessage", function(result, isSuccessful, resultCode)
       print(isSuccessful)
@@ -52,6 +51,8 @@ local function sendMessage(msg)
     send(msg)
   end
 end
+
+_G.send_qq_msg = sendMessage
 
 local msgs = {}
 
