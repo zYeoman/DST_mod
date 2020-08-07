@@ -27,6 +27,10 @@ local function getpailie()
   return __thestewer
 end
 
+local function resetpailie()
+  __thedate = 0
+end
+
 local types = {
   ["fire"]=1,       -- 火焰
   ["ice"]=1,        -- 冰霜
@@ -367,6 +371,9 @@ AddComponentPostInit("stewer_fur", function(Stewer_Fur)
             end
             local origin = loot.components.weapon.externaldamage and loot.components.weapon.externaldamage:CalculateModifierFromSource("stewer") or 0
             origin = origin + math.floor(10^right/10)
+            if right == 3 then
+              resetpailie()
+            end
             loot.components.weapon:SetDamage(origin, "stewer")
           end
         else
