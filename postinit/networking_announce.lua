@@ -14,15 +14,12 @@ local function auth(fn)
   TheSim:QueryServer(api.."/auth", function(result, isSuccessful, resultCode)
     if not isSuccessful then return end
     if resultCode==200 then
-      print(result)
       res = json.decode(result)
       session = res.session
       verifydata = json.encode({qq=852314408,sessionKey=session})
-      print(jsondata)
       TheSim:QueryServer(api.."/verify", function(result, isSuccessful, resultCode)
         if not isSuccessful then return end
         if resultCode==200 then
-          print(result)
           sessionok = os.time()
           fn()
         end
