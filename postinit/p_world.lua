@@ -64,7 +64,7 @@ if GLOBAL.TheShard:GetShardId()=="1" then
         SaveGameIndex:SaveCurrent(Shutdown, true)
       end
       if _G.send_qq_msg then
-        _G.send_qq_msg("服务器空了")
+        _G.send_qq_msg(msg)
       end
       oldOnSimPaused()
     end
