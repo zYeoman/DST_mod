@@ -443,6 +443,8 @@ if true then
   modimport "postinit/lagprevent.lua"
   -- 工资
   modimport "postinit/c_seplayerstatus.lua"
+  -- 建造权限
+  modimport "postinit/c_deployable.lua"
 
   -- 聊天命令
   modimport "postinit/networking_say.lua"
