@@ -18,6 +18,11 @@ AddPrefabPostInit("alchmy_fur", function (inst)
   if inst.components.inspectable then
     inst.components.inspectable.getspecialdescription = getspecialdescription
   end
+  inst:DoTaskInTime(2,function()
+    if inst.ownerlist==nil and inst.components.workable then
+      inst:RemoveComponent("workable")
+    end
+  end)
 end)
 
 
