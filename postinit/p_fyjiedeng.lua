@@ -52,7 +52,7 @@ local function onplayernear(inst, player)
   if ownerlist ~= nil and playerid ~= nil then
     if ownerlist.jiahu == nil then
       for k,v in pairs(GLOBAL.Ents) do
-        if v.prefab == "fyjiedeng" then
+        if v.prefab == inst.prefab then
           if v ~= inst and v.ownerlist and v.ownerlist.master == inst.ownerlist.master and v.ownerlist.jiahu == true then
             inst.ownerlist.jiahu = false
             player.components.talker:Say("只有第一个街灯有效~")
@@ -90,9 +90,33 @@ local function onplayernear(inst, player)
 end
 
 
-AddPrefabPostInit("fyjiedeng", function (inst)
+AddPrefabPostInit("myth_redlantern_ground", function (inst)
+  if inst.components.playerprox == nil then
+    inst:AddComponent("playerprox")
+  end
   if inst.components.playerprox then
     inst.components.playerprox:SetDist(2,3)
     inst.components.playerprox:SetOnPlayerNear(onplayernear)
   end
+end)
+
+local OnPlayerJoin = function(src, player)
+    player:DoTaskInTime(2, function()
+      if player.components.builder and player.components.age:GetAgeInDays() <= 2 then
+        if player.components.inventory:Has("myth_redlantern", 1) then
+        else
+          local denglong = SpawnPrefab("myth_redlantern")
+          player.components.inventory:GiveItem(denglong)
+        end
+        player.components.builder:UnlockRecipe("myth_redlantern_ground")
+        player.components.builder.buffered_builds["myth_redlantern_ground"] = 0
+        player.replica.builder:SetIsBuildBuffered("myth_redlantern_ground", true)
+        if player.components.talker then
+          player.components.talker:Say("我可以做个街灯来挂机")
+        end
+      end
+    end)
+end
+AddPrefabPostInit("world", function(inst)
+  inst:ListenForEvent("ms_playerjoined", OnPlayerJoin, inst)
 end)

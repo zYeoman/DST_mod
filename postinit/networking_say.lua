@@ -130,7 +130,7 @@ fns['tp'] = function(inst, dest, name, userid)
   if dest == nil or dest == "" then
     -- 回城到路灯位置
     for k,v in pairs(GLOBAL.Ents) do
-      if v.prefab == "fyjiedeng" then
+      if v.prefab == "myth_redlantern_ground" then
         if v.ownerlist and v.ownerlist.master == userid and v.ownerlist.jiahu then
           if inst.Physics ~= nil then
             inst.Physics:Teleport(v.Transform:GetWorldPosition())

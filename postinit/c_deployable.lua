@@ -1,4 +1,3 @@
-#! /usr/bin/env lua
 --
 -- c_deployable.lua
 -- Copyright (C) 2020 Yongwen Zhuang <zyeoman@163.com>
