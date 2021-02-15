@@ -452,6 +452,8 @@ if true then
   modimport "postinit/networking_announce.lua"
   -- 加入离开游戏
   modimport "postinit/c_playerspawner.lua"
+  -- 禁用小穹打包
+  modimport "postinit/c_sorapacker.lua"
 
   -- 中庭去权限
   -- modimport "postinit/p_atrium_gate.lua"
