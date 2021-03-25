@@ -7,20 +7,22 @@
 -- 修改掉落在一定时间内消失
 
 AddComponentPostInit("lootdropper", function(LootDropper)
-  function LootDropper:SpawnLootPrefab(lootprefab, pt)
+  function LootDropper:SpawnLootPrefab(lootprefab, pt, linked_skinname, skin_id, userid)
     if lootprefab ~= nil then
-      local loot = SpawnPrefab(lootprefab)
+      local loot = SpawnPrefab(lootprefab, linked_skinname, skin_id, userid)
       if loot ~= nil then
         if loot.components.inventoryitem ~= nil then
-          if self.inst.components.inventoryitem ~= nil then
-            loot.components.inventoryitem:InheritMoisture(self.inst.components.inventoryitem:GetMoisture(), self.inst.components.inventoryitem:IsWet())
-          else
-            loot.components.inventoryitem:InheritMoisture(TheWorld.state.wetness, TheWorld.state.iswet)
-          end
+            if self.inst.components.inventoryitem ~= nil then
+                loot.components.inventoryitem:InheritMoisture(self.inst.components.inventoryitem:GetMoisture(), self.inst.components.inventoryitem:IsWet())
+            else
+                loot.components.inventoryitem:InheritMoisture(TheWorld.state.wetness, TheWorld.state.iswet)
+            end
         end
 
         -- here? so we can run a full drop loot?
-        self:FlingItem(loot, pt)
+            self:FlingItem(loot, pt)
+        loot:PushEvent("on_loot_dropped", {dropper = self.inst})
+        self.inst:PushEvent("loot_prefab_spawned", {loot = loot})
         loot:ListenForEvent("onpickup", function()
           if loot._disappear then
             loot._disappear:Cancel()
