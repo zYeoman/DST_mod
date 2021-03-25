@@ -165,10 +165,10 @@ AddComponentPostInit("oldfish", function (oldfish)
         end
       end
     end
-    if self.level > 100 and self.namelist ~= nil and self.namelist.custom ~= nil and self.level<1100 and self.namelist.custom == TUNING.OLDFISH_NAME[math.floor(self.level / 100)-1].name then
-      local name = TUNING.OLDFISH_NAME[math.floor(self.level / 100)].name
-      self:SetName(name, 'custom')
-    end
+    -- if self.level ~= nil and self.level > 100 and self.namelist ~= nil and self.namelist.custom ~= nil and self.level<1100 and self.namelist.custom == TUNING.OLDFISH_NAME[math.floor(self.level / 100)-1].name then
+    --   local name = TUNING.OLDFISH_NAME[math.floor(self.level / 100)].name
+    --   self:SetName(name, 'custom')
+    -- end
     self.inst:DoTaskInTime(0.5, function()
       self.inst.components.talker:Say("升级成功！".. (t_hunger~=0 and "最大饥饿+"..t_hunger or "")..(t_san~=0 and" 最大脑残+" .. t_san or "") .. (t_health~=0 and" 最大生命+" .. t_health or ""))
       self.inst.components.health:SetMaxHealth(self.health, 'oldfish')
@@ -208,7 +208,6 @@ AddComponentPostInit("oldfish", function (oldfish)
     self.xxlevel = data.xxlevel or 1
     self.gengu = data.gengu or (math.random(3)+8)
     self.daoyuan = data.daoyuan or 0
-    self:touxian()
     self:DoDelta_gengu(0)
       local percent = self.inst.components.health:GetPercent()
       self.inst.components.health:SetMaxHealth(math.min(self.health,20000), 'oldfish')
